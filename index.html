@@ -202,6 +202,27 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:10px;
 }
 .fdot.w{background:rgba(143,224,176,.16);color:#8FE0B0}
 .fdot.l{background:rgba(214,90,80,.14);color:#E58A80}
+
+/* 週間天気 */
+.weather{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--line);border:1px solid var(--line)}
+.wcard{background:var(--soil);padding:14px 14px 12px;position:relative}
+.wcard.walert{background:linear-gradient(180deg,rgba(94,140,214,.14),var(--soil) 60%)}
+.wtop{display:flex;justify-content:space-between;align-items:baseline}
+.wdate{font-family:var(--num);font-weight:600;font-size:15px;letter-spacing:.02em}
+.wicon{font-size:20px;line-height:1}
+.wtext{font-family:var(--gothic);font-size:11.5px;color:var(--ink-dim);margin-top:4px}
+.wtag{display:block;font-family:var(--min);font-size:10px;letter-spacing:.04em;color:#8FBFE8;
+  background:rgba(94,140,214,.16);padding:2px 7px;margin-top:4px;width:fit-content;font-weight:700}
+.wtemp{margin-top:8px;font-family:var(--num);display:flex;align-items:baseline;gap:5px;flex-wrap:wrap}
+.wtemp b{font-size:18px;color:var(--ink);font-weight:600}
+.wtemp span{font-size:13px;color:var(--ink-dim)}
+.wtemp em{font-style:normal;font-size:10.5px;color:var(--clay);margin-left:4px}
+.wgames{margin-top:10px;padding-top:9px;border-top:1px dashed var(--line);display:flex;flex-direction:column;gap:5px}
+.wgame{display:flex;align-items:center;gap:5px;font-family:var(--gothic);font-size:10.5px;color:rgba(243,239,226,.7);flex-wrap:wrap}
+.wgame b{font-family:var(--num);color:var(--clay);font-weight:600}
+.wgame .vs{color:var(--ink-dim);font-size:9px}
+.wgames.wtbd,.wgames.wrest{color:var(--ink-dim);font-size:10.5px;font-family:var(--min);letter-spacing:.04em}
+.wnote{margin-top:8px;font-size:10px;color:var(--ink-dim);line-height:1.5}
 .card .pay b{font-family:var(--num);font-size:19px;color:var(--clay)}
 
 /* 見出し */
@@ -364,6 +385,7 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   .hero h1 .t2{margin-top:10px}
   .standings{grid-template-columns:1fr}
   .personal{grid-template-columns:1fr}
+  .weather{grid-template-columns:1fr}
   .champions{grid-template-columns:1fr}
   .cards{grid-template-columns:1fr}
   .rules{grid-template-columns:1fr}
@@ -424,7 +446,7 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   <div class="lamp" id="lamp"></div>
   <nav class="secnav" id="secnav">
     <a href="#nav-board">戦況</a><a href="#nav-standings">順位</a><a href="#nav-personal">個人成績</a><a href="#nav-champions">優勝予想</a>
-    <a href="#nav-chart">推移</a><a href="#nav-schedule">日程</a><a class="hot" href="#today-anchor" id="navToday">本日</a>
+    <a href="#nav-chart">推移</a><a href="#nav-weather">天気</a><a href="#nav-schedule">日程</a><a class="hot" href="#today-anchor" id="navToday">本日</a>
     <a href="#nav-teams">出場校</a><a id="navTrends" href="#trendsWrap" style="display:none">傾向</a><a href="#nav-rules">規定</a>
   </nav>
 </header>
@@ -493,6 +515,12 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
     <div class="head"><h2>出場校 戦力一覧</h2><em id="teamCount"></em></div>
     <div class="tablewrap" id="teams"></div>
     <p class="fine" style="margin:8px 2px 0;font-size:11.5px;color:var(--ink-dim)">見出しをタップで並び替え</p>
+  </section>
+
+  <section class="reveal" id="nav-weather">
+    <div class="head"><h2>週間天気</h2><em>Nishinomiya</em></div>
+    <div class="weather" id="weather"></div>
+    <p class="fine" style="margin:9px 2px 0;font-size:11.5px;color:var(--ink-dim)">西宮市の天気予報（tenki.jp）。その日の対戦カードとオッズもあわせて表示</p>
   </section>
 
   <section class="reveal" id="nav-schedule">
@@ -820,6 +848,44 @@ function renderStandings(){
 }
 
 /* ---------- 個人の的中率 ---------- */
+/* ---------- 週間天気（西宮・8/10 16:00発表 tenki.jpより） ---------- */
+const WEATHER = {
+ "8/11":{icon:"🌤",text:"晴時々曇",hi:33,lo:24,pop:20},
+ "8/12":{icon:"🌧",text:"雨時々曇",hi:28,lo:25,pop:100,mm:35,alert:true},
+ "8/13":{icon:"🌧",text:"雨のち曇",hi:28,lo:24,pop:100,mm:34,alert:true},
+ "8/14":{icon:"☀️",text:"晴",hi:32,lo:24,pop:40},
+ "8/15":{icon:"☀️",text:"晴",hi:33,lo:25,pop:10},
+ "8/16":{icon:"☀️",text:"晴",hi:34,lo:26,pop:10},
+ "8/17":{icon:"🌤",text:"晴のち曇",hi:33,lo:26,pop:40},
+ "8/18":{icon:"☀️",text:"晴",hi:34,lo:26,pop:10},
+ "8/19":{icon:"🌤",text:"晴のち曇",hi:34,lo:27,pop:40},
+ "8/20":{icon:"🌦",text:"晴一時雨",hi:34,lo:27,pop:50,mm:2},
+ "8/21":{icon:"🌤",text:"晴のち曇",hi:34,lo:26,pop:20,low_conf:true},
+ "8/22":{icon:"⛅",text:"曇時々晴",hi:34,lo:27,pop:30,low_conf:true},
+};
+function renderWeather(){
+  const box = document.getElementById("weather");
+  if(!box) return;
+  box.innerHTML = Object.keys(WEATHER).map(date=>{
+    const w = WEATHER[date];
+    const day = DAYS.find(d=>d.d===date);
+    const games = (day && !day.rest) ? (day.games||[]).filter(g=>g.a && g.b) : [];
+    const gamesHtml = games.length ? `<div class="wgames">${games.map(g=>
+      `<div class="wgame"><span>${g.a}</span><b>${g.oa?g.oa.toFixed(1):"—"}</b><span class="vs">×</span><b>${g.ob?g.ob.toFixed(1):"—"}</b><span>${g.b}</span></div>`
+    ).join("")}</div>` : (day && day.rest ? `<div class="wgames wrest">休養日</div>` : `<div class="wgames wtbd">対戦カード未定</div>`);
+    return `<div class="wcard ${w.alert?"walert":""}">
+      <div class="wtop">
+        <span class="wdate">${date}<i class="dow ${dowInfo(date).cls}">(${dowInfo(date).label})</i></span>
+        <span class="wicon">${w.icon}</span>
+      </div>
+      <div class="wtext">${w.text}${w.alert?'<b class="wtag">試合順延の可能性</b>':""}</div>
+      <div class="wtemp"><b>${w.hi}°</b><span>/${w.lo}°</span><em>降水${w.pop}%${w.mm?`・${w.mm}mm`:""}</em></div>
+      ${gamesHtml}
+      ${w.low_conf?'<p class="wnote">※1週間より先のため予報の信頼度は低め</p>':""}
+    </div>`;
+  }).join("");
+}
+
 function renderPersonal(){
   const rec = {}; PLAYERS.forEach(p=>rec[p.name]={hit:0,total:0,seq:[]});
   DAYS.forEach(day=>{
@@ -1109,6 +1175,7 @@ function renderAll(){
   safe("board", renderBoard);
   safe("standings", renderStandings);
   safe("personal", renderPersonal);
+  safe("weather", renderWeather);
   safe("chart", renderChart);
   safe("timeline", renderTimeline);
   safe("teams", renderTeams);
