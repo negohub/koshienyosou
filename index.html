@@ -203,26 +203,6 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:10px;
 .fdot.w{background:rgba(143,224,176,.16);color:#8FE0B0}
 .fdot.l{background:rgba(214,90,80,.14);color:#E58A80}
 
-/* 週間天気 */
-.weather{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--line);border:1px solid var(--line)}
-.wcard{background:var(--soil);padding:14px 14px 12px;position:relative}
-.wcard.walert{background:linear-gradient(180deg,rgba(94,140,214,.14),var(--soil) 60%)}
-.wtop{display:flex;justify-content:space-between;align-items:baseline}
-.wdate{font-family:var(--num);font-weight:600;font-size:15px;letter-spacing:.02em}
-.wicon{font-size:20px;line-height:1}
-.wtext{font-family:var(--gothic);font-size:11.5px;color:var(--ink-dim);margin-top:4px}
-.wtag{display:block;font-family:var(--min);font-size:10px;letter-spacing:.04em;color:#8FBFE8;
-  background:rgba(94,140,214,.16);padding:2px 7px;margin-top:4px;width:fit-content;font-weight:700}
-.wtemp{margin-top:8px;font-family:var(--num);display:flex;align-items:baseline;gap:5px;flex-wrap:wrap}
-.wtemp b{font-size:18px;color:var(--ink);font-weight:600}
-.wtemp span{font-size:13px;color:var(--ink-dim)}
-.wtemp em{font-style:normal;font-size:10.5px;color:var(--clay);margin-left:4px}
-.wgames{margin-top:10px;padding-top:9px;border-top:1px dashed var(--line);display:flex;flex-direction:column;gap:5px}
-.wgame{display:flex;align-items:center;gap:5px;font-family:var(--gothic);font-size:10.5px;color:rgba(243,239,226,.7);flex-wrap:wrap}
-.wgame b{font-family:var(--num);color:var(--clay);font-weight:600}
-.wgame .vs{color:var(--ink-dim);font-size:9px}
-.wgames.wtbd,.wgames.wrest{color:var(--ink-dim);font-size:10.5px;font-family:var(--min);letter-spacing:.04em}
-.wnote{margin-top:8px;font-size:10px;color:var(--ink-dim);line-height:1.5}
 .card .pay b{font-family:var(--num);font-size:19px;color:var(--clay)}
 
 /* 見出し */
@@ -281,6 +261,14 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:10px;
 .day.final .g{border-color:rgba(142,18,32,.55);background:linear-gradient(180deg,rgba(142,18,32,.16),rgba(0,0,0,.24))}
 .flagnote{font-family:var(--min);font-size:12px;letter-spacing:.14em;color:#E9808C;margin-top:10px}
 .dayhead .tally{margin-left:auto;display:flex;gap:14px;font-family:var(--num);font-size:13px;letter-spacing:.04em}
+.wbadge{
+  display:inline-flex;align-items:center;gap:6px;font-family:var(--num);font-size:11.5px;
+  color:var(--ink-dim);letter-spacing:.02em;margin:8px 0 -4px;
+}
+.wbadge.walert2{color:#8FBFE8}
+.wbadge b{font-family:var(--min);font-weight:700;font-size:10px;letter-spacing:.03em;
+  color:#8FBFE8;background:rgba(94,140,214,.16);padding:1px 7px;margin-left:2px}
+.restday .wbadge{margin:0 0 0 12px}
 .badge-now{font-family:var(--min);font-size:11px;letter-spacing:.16em;background:var(--clay);color:#1b1006;padding:2px 10px;font-weight:700}
 .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .g{border:1px solid var(--line);background:rgba(0,0,0,.24)}
@@ -385,7 +373,6 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   .hero h1 .t2{margin-top:10px}
   .standings{grid-template-columns:1fr}
   .personal{grid-template-columns:1fr}
-  .weather{grid-template-columns:1fr}
   .champions{grid-template-columns:1fr}
   .cards{grid-template-columns:1fr}
   .rules{grid-template-columns:1fr}
@@ -446,7 +433,7 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   <div class="lamp" id="lamp"></div>
   <nav class="secnav" id="secnav">
     <a href="#nav-board">戦況</a><a href="#nav-standings">順位</a><a href="#nav-personal">個人成績</a><a href="#nav-champions">優勝予想</a>
-    <a href="#nav-chart">推移</a><a href="#nav-weather">天気</a><a href="#nav-schedule">日程</a><a class="hot" href="#today-anchor" id="navToday">本日</a>
+    <a href="#nav-chart">推移</a><a href="#nav-schedule">日程</a><a class="hot" href="#today-anchor" id="navToday">本日</a>
     <a href="#nav-teams">出場校</a><a id="navTrends" href="#trendsWrap" style="display:none">傾向</a><a href="#nav-rules">規定</a>
   </nav>
 </header>
@@ -515,12 +502,6 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
     <div class="head"><h2>出場校 戦力一覧</h2><em id="teamCount"></em></div>
     <div class="tablewrap" id="teams"></div>
     <p class="fine" style="margin:8px 2px 0;font-size:11.5px;color:var(--ink-dim)">見出しをタップで並び替え</p>
-  </section>
-
-  <section class="reveal" id="nav-weather">
-    <div class="head"><h2>週間天気</h2><em>Nishinomiya</em></div>
-    <div class="weather" id="weather"></div>
-    <p class="fine" style="margin:9px 2px 0;font-size:11.5px;color:var(--ink-dim)">西宮市の天気予報（tenki.jp）。その日の対戦カードとオッズもあわせて表示</p>
   </section>
 
   <section class="reveal" id="nav-schedule">
@@ -732,10 +713,11 @@ const DAYS = [
  {d:"8/14", nth:"第10日", games:[
    {t:"8:00",  r:"2回戦", from:[["8/9",0],["8/9",1]], oa:1.3, ob:3.3},
    {t:"13:30", r:"2回戦", from:[["8/9",2],["8/9",3]], oa:2.4, ob:1.5},
-   {t:"16:00", r:"2回戦", from:[["8/10",0],["8/10",1]], est:true}
+   {t:"16:00", r:"2回戦", from:[["8/10",0],["8/10",1]], oa:3.3, ob:1.3}
  ]},
  {d:"8/15", nth:"第11日", games:[
-   {t:"8:00", r:"3回戦"},{t:"10:30", r:"3回戦"},{t:"13:00", r:"3回戦"},{t:"15:30", r:"3回戦"}
+   {t:"8:00", r:"3回戦", from:[["8/10",2],["8/10",3]], oa:2.2, ob:1.7},
+   {t:"10:30", r:"3回戦"},{t:"13:00", r:"3回戦"},{t:"15:30", r:"3回戦"}
  ]},
  {d:"8/16", nth:"第12日", games:[
    {t:"8:00", r:"3回戦"},{t:"10:30", r:"3回戦"},{t:"13:00", r:"3回戦"},{t:"15:30", r:"3回戦"}
@@ -863,29 +845,6 @@ const WEATHER = {
  "8/21":{icon:"🌤",text:"晴のち曇",hi:34,lo:26,pop:20,low_conf:true},
  "8/22":{icon:"⛅",text:"曇時々晴",hi:34,lo:27,pop:30,low_conf:true},
 };
-function renderWeather(){
-  const box = document.getElementById("weather");
-  if(!box) return;
-  box.innerHTML = Object.keys(WEATHER).map(date=>{
-    const w = WEATHER[date];
-    const day = DAYS.find(d=>d.d===date);
-    const games = (day && !day.rest) ? (day.games||[]).filter(g=>g.a && g.b) : [];
-    const gamesHtml = games.length ? `<div class="wgames">${games.map(g=>
-      `<div class="wgame"><span>${g.a}</span><b>${g.oa?g.oa.toFixed(1):"—"}</b><span class="vs">×</span><b>${g.ob?g.ob.toFixed(1):"—"}</b><span>${g.b}</span></div>`
-    ).join("")}</div>` : (day && day.rest ? `<div class="wgames wrest">休養日</div>` : `<div class="wgames wtbd">対戦カード未定</div>`);
-    return `<div class="wcard ${w.alert?"walert":""}">
-      <div class="wtop">
-        <span class="wdate">${date}<i class="dow ${dowInfo(date).cls}">(${dowInfo(date).label})</i></span>
-        <span class="wicon">${w.icon}</span>
-      </div>
-      <div class="wtext">${w.text}${w.alert?'<b class="wtag">試合順延の可能性</b>':""}</div>
-      <div class="wtemp"><b>${w.hi}°</b><span>/${w.lo}°</span><em>降水${w.pop}%${w.mm?`・${w.mm}mm`:""}</em></div>
-      ${gamesHtml}
-      ${w.low_conf?'<p class="wnote">※1週間より先のため予報の信頼度は低め</p>':""}
-    </div>`;
-  }).join("");
-}
-
 function renderPersonal(){
   const rec = {}; PLAYERS.forEach(p=>rec[p.name]={hit:0,total:0,seq:[]});
   DAYS.forEach(day=>{
@@ -1013,8 +972,13 @@ function gameCard(g,i,done){
 }
 function renderTimeline(){
   const {daily, played} = STATE;
+  const wbadge = (date)=>{
+    const w = WEATHER[date];
+    if(!w) return "";
+    return `<span class="wbadge ${w.alert?"walert2":""}">${w.icon} ${w.hi}°/${w.lo}° 降水${w.pop}%${w.alert?'<b>順延の可能性</b>':""}</span>`;
+  };
   document.getElementById("timeline").innerHTML = DAYS.map(d=>{
-    if(d.rest) return `<div class="restday"><b>${d.d}<i class="dow ${dowInfo(d.d).cls}">(${dowInfo(d.d).label})</i></b>休養日</div>`;
+    if(d.rest) return `<div class="restday"><b>${d.d}<i class="dow ${dowInfo(d.d).cls}">(${dowInfo(d.d).label})</i></b>休養日${wbadge(d.d)}</div>`;
     const done = (d.games||[]).some(g=>winnerOf(g)!==null);
     const idx = played.indexOf(d);
     const tally = (idx>=0) ? `<span class="tally">${PLAYERS.map(p=>
@@ -1029,6 +993,7 @@ function renderTimeline(){
         <span class="rd ${d.final?"f":""}">${rounds}</span>${off}
         ${d.now?'<span class="badge-now">本日</span>':""}${tally}
       </div>
+      ${wbadge(d.d)}
       <div class="cards">${d.games.map((g,i)=>gameCard(g,i,done)).join("")}</div>${b}
       ${d.final?'<div class="flagnote">深紅の大優勝旗</div>':""}
     </article>`;
@@ -1175,7 +1140,6 @@ function renderAll(){
   safe("board", renderBoard);
   safe("standings", renderStandings);
   safe("personal", renderPersonal);
-  safe("weather", renderWeather);
   safe("chart", renderChart);
   safe("timeline", renderTimeline);
   safe("teams", renderTeams);
