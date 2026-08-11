@@ -180,6 +180,45 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:10px;
 .card .gap b{font-family:var(--num);color:#FF6B60;font-size:14px}
 .card .pay{margin-top:13px;padding-top:11px;border-top:1px dashed var(--line);font-size:12px;color:var(--ink-dim);min-height:44px}
 
+/* 出場校の詳細パネル */
+.tname{
+  font-family:var(--min);font-weight:700;font-size:14.5px;letter-spacing:.04em;
+  background:transparent;border:none;color:var(--ink);cursor:pointer;padding:0;
+  border-bottom:1px dotted rgba(243,239,226,.35);transition:.2s;
+}
+.tname:hover{color:var(--clay);border-bottom-color:var(--clay)}
+.tt tbody tr.open{background:rgba(180,98,44,.14)}
+.tt tbody tr.open .tname{color:var(--clay);border-bottom-color:var(--clay)}
+.tdetail td{padding:0 !important;background:rgba(0,0,0,.38)}
+.dwrap{padding:16px 15px;border-left:3px solid var(--clay)}
+.dtop{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.dname{font-family:var(--min);font-weight:800;font-size:20px;letter-spacing:.06em}
+.dpref{font-family:var(--gothic);font-size:11.5px;color:var(--ink-dim)}
+.dodds{font-family:var(--num);font-size:12px;color:var(--ink-dim);margin-left:auto}
+.dstats{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--gothic);font-size:11.5px;color:var(--ink-dim);
+  padding-bottom:10px;border-bottom:1px dashed var(--line)}
+.dstats b{font-family:var(--num);color:var(--ink);font-weight:600;font-size:13px}
+.dform{margin-top:10px;font-size:11.5px;color:var(--ink-dim);line-height:1.7}
+.dform b{display:block;color:var(--gold);font-weight:700;margin-bottom:2px}
+.dmemo{margin-top:10px;font-size:11.5px;color:var(--ink-dim);line-height:1.7}
+.dlabel{font-family:var(--min);font-size:11px;letter-spacing:.16em;color:var(--clay);margin:12px 0 6px}
+.dgame{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11.5px;padding:6px 0;
+  border-bottom:1px dotted rgba(243,239,226,.08)}
+.dgd{font-family:var(--num);color:var(--ink-dim);min-width:34px}
+.dgr{font-family:var(--min);font-size:10px;color:var(--ink-dim)}
+.dgo{font-family:var(--min);font-weight:700;font-size:13px}
+.dgs{font-family:var(--num);font-weight:700;font-size:13px}
+.dgame.w .dgs,.dgame.w .dgw{color:#8FE0B0}
+.dgame.l .dgs,.dgame.l .dgw{color:#E58A80}
+.dgw{font-size:12px}
+.dgh{margin-left:auto;font-family:var(--gothic);font-size:10.5px;color:var(--ink-dim)}
+.dgh.miss{color:#E58A80}
+.dnone{font-size:11.5px;color:var(--ink-dim);padding:4px 0}
+.dnext{margin-top:10px;padding-top:9px;border-top:1px dashed var(--line);
+  font-size:11.5px;color:var(--ink-dim);line-height:1.7}
+.dnext b{color:var(--ink);font-weight:700}
+.dnext.ko{color:#E58A80}
+
 /* 逆転ライン */
 .cbox{border:1px solid var(--line);background:rgba(0,0,0,.24);padding:16px}
 .cbhead{font-family:var(--gothic);font-size:12px;color:var(--ink-dim);padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:10px}
@@ -580,7 +619,7 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   <section class="reveal" id="nav-teams">
     <div class="head"><h2>出場校 戦力一覧</h2><em id="teamCount"></em></div>
     <div class="tablewrap" id="teams"></div>
-    <p class="fine" style="margin:8px 2px 0;font-size:11.5px;color:var(--ink-dim)">見出しをタップで並び替え</p>
+    <p class="fine" style="margin:8px 2px 0;font-size:11.5px;color:var(--ink-dim)">見出しをタップで並び替え／校名をタップでそのチームの詳細</p>
   </section>
 
   <section class="reveal" id="nav-schedule">
@@ -719,6 +758,7 @@ const CH = {
 
 /* 初戦を終えたチームの [戦績, 最新寸評]。試合が進んだら上書きしてください */
 const FORM = {
+ "履正社":["2回戦：享栄に6-2で勝利","大阪大会7試合66得点の強力打線が、聖地でも力を見せた。"],
  "智辯和歌山":["2回戦：社に2-1で勝利","全国屈指の守備を誇る社を打ち崩し、1点差の接戦を制した。"],
  "敦賀気比":["2回戦：横手に10-0で圧勝","打線が爆発しコールド勝ち。投手陣も完封で隙がない。"],
  "日南学園":["初戦：明徳義塾に2-1でサヨナラ勝ち","延長の末、劇的サヨナラで優勝候補格を撃破。8年ぶりの聖地初勝利。"],
@@ -777,7 +817,7 @@ const DAYS = [
  {d:"8/11", nth:"第7日", now:true, games:[
    {t:"8:00",  r:"2回戦", a:"横手", b:"敦賀気比", oa:2.7, ob:1.4, s:[0,10], hits:["根来","今井"]},
    {t:"13:30", r:"2回戦", a:"智辯和歌山", b:"社", oa:2.1, ob:1.7, s:[2,1], hits:["畑山","根来","今井"], tag:"守備力の壁"},
-   {t:"16:00", r:"2回戦", a:"履正社", b:"享栄", oa:1.4, ob:3.0},
+   {t:"16:00", r:"2回戦", a:"履正社", b:"享栄", oa:1.4, ob:3.0, s:[6,2], hits:["畑山","根来","今井"]},
    {t:"18:30", r:"2回戦", a:"松商学園", b:"三重", oa:1.6, ob:2.3, tag:"打ち合い必至"}
  ]},
  {d:"8/12", nth:"第8日", games:[
@@ -1262,6 +1302,28 @@ function renderTimeline(){
 
 /* ---------- 出場校 戦力一覧 ---------- */
 let sortKey = 3, sortAsc = false;   // 既定は打率降順
+/* 学校ごとの甲子園戦績と次戦を集める */
+function teamHistory(team){
+  const past = [], next = [];
+  DAYS.forEach(d=>{
+    if(d.rest) return;
+    (d.games||[]).forEach((g,i)=>{
+      if(g.a!==team && g.b!==team) return;
+      const isA = g.a===team, opp = isA ? g.b : g.a;
+      const w = winnerOf(g);
+      if(w===null){
+        next.push({date:d.d, time:g.t, round:g.r, opp,
+                   odd: isA ? g.oa : g.ob, oppOdd: isA ? g.ob : g.oa});
+      }else{
+        const won = (w===0)===isA;
+        const sc = g.s ? (isA ? `${g.s[0]}-${g.s[1]}` : `${g.s[1]}-${g.s[0]}`) : "";
+        past.push({date:d.d, round:g.r, opp, won, sc, hits:g.hits||[]});
+      }
+    });
+  });
+  return {past, next:next[0]||null};
+}
+let openTeam = null;
 function renderTeams(){
   const KEYS = ["都道府県","校名","出場","打率","防御率","平均得点","優勝オッズ"];
   const dead = eliminated();
@@ -1275,22 +1337,59 @@ function renderTeams(){
     const c = (typeof x==="string") ? x.localeCompare(y,"ja") : x-y;
     return sortAsc ? c : -c;
   });
+  const detailRow = (r)=>{
+    const h = teamHistory(r.name);
+    const f = FORM[r.name];
+    const pastHtml = h.past.length ? h.past.map(p=>
+      `<div class="dgame ${p.won?"w":"l"}">
+        <span class="dgd">${p.date}</span><span class="dgr">${p.round}</span>
+        <span class="dgo">${p.opp}</span>
+        <span class="dgs">${p.sc}</span><span class="dgw">${p.won?"○":"●"}</span>
+        ${p.hits.length?`<span class="dgh">的中：${p.hits.join("・")}</span>`:`<span class="dgh miss">全員外し</span>`}
+      </div>`).join("") : `<div class="dnone">まだ試合をしていません</div>`;
+    const nextHtml = h.next
+      ? `<div class="dnext">次戦　<b>${h.next.date}</b> ${h.next.time}　${h.next.round}<br>
+           相手：<b>${h.next.opp}</b>${h.next.odd?`　自校 ${h.next.odd.toFixed(1)}倍 / 相手 ${h.next.oppOdd.toFixed(1)}倍`:"　オッズ未定"}</div>`
+      : (r.ko ? `<div class="dnext ko">敗退</div>` : `<div class="dnext">次戦の組み合わせは未確定</div>`);
+    return `<tr class="tdetail"><td colspan="7">
+      <div class="dwrap">
+        <div class="dtop">
+          <span class="dname">${r.name}</span>
+          <span class="dpref">${r.pref}　${r.apps}</span>
+          ${r.odds?`<span class="dodds">優勝オッズ <b class="rk ${r.rank}">${r.rank}</b>${r.odds.toFixed(1)}倍</span>`:""}
+        </div>
+        <div class="dstats">
+          <span>打率 <b>${r.avg||"—"}</b></span>
+          <span>防御率 <b>${r.era||"—"}</b></span>
+          <span>平均得点 <b>${r.runs||"—"}</b></span>
+        </div>
+        ${f?`<div class="dform"><b>${f[0]}</b>${f[1]}</div>`:(r.memo?`<div class="dmemo">${r.memo}</div>`:"")}
+        <div class="dlabel">甲子園での戦績</div>
+        ${pastHtml}
+        ${nextHtml}
+      </div>
+    </td></tr>`;
+  };
   document.getElementById("teams").innerHTML =
     `<table class="tt"><thead><tr>${KEYS.map((k,i)=>
       `<th data-k="${i}" class="${i===sortKey?'s':''}">${k}${i===sortKey?(sortAsc?" ▲":" ▼"):""}</th>`).join("")}</tr></thead><tbody>`
-    + rows.map(r=>`<tr class="${r.ko?"ko":""}">
+    + rows.map(r=>`<tr class="${r.ko?"ko":""} ${openTeam===r.name?"open":""}">
         <td class="p">${r.pref}</td>
-        <td class="n">${r.name}${r.name===ALMA?'<span class="alma">母校</span>':''}${pickTag(r.name)}</td>
+        <td class="n"><button class="tname" data-team="${r.name}">${r.name}</button>${r.name===ALMA?'<span class="alma">母校</span>':''}${pickTag(r.name)}</td>
         <td class="d">${r.apps||"—"}</td>
         <td class="d">${r.avg||"—"}</td>
         <td class="d">${r.era||"—"}</td>
         <td class="d">${r.runs||"—"}</td>
         <td class="d">${r.odds?`<b class="rk ${r.rank}">${r.rank}</b>${r.odds.toFixed(1)}倍`:"—"}</td>
-      </tr>`).join("") + "</tbody></table>";
+      </tr>` + (openTeam===r.name ? detailRow(r) : "")).join("") + "</tbody></table>";
   const koCount = rows.filter(r=>r.ko).length;
   document.querySelectorAll("#teams th").forEach(th=>th.addEventListener("click",()=>{
     const k=+th.dataset.k;
     if(k===sortKey) sortAsc=!sortAsc; else {sortKey=k; sortAsc=(k<=2||k===6);}
+    renderTeams();
+  }));
+  document.querySelectorAll("#teams .tname").forEach(b=>b.addEventListener("click",()=>{
+    openTeam = (openTeam===b.dataset.team) ? null : b.dataset.team;
     renderTeams();
   }));
   document.getElementById("teamCount").textContent = `${rows.length}校（敗退 ${koCount}）`;
