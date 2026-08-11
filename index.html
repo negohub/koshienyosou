@@ -198,6 +198,10 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:10px;
 .dstats{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--gothic);font-size:11.5px;color:var(--ink-dim);
   padding-bottom:10px;border-bottom:1px dashed var(--line)}
 .dstats b{font-family:var(--num);color:var(--ink);font-weight:600;font-size:13px}
+.dsrc{font-family:var(--min);font-size:10.5px;letter-spacing:.08em;color:var(--clay);min-width:64px}
+.dstats.kdstats{border-bottom:none;padding-top:8px;padding-bottom:0;color:rgba(229,185,60,.55)}
+.dstats.kdstats .dsrc{color:var(--gold)}
+.dstats.kdstats b{color:var(--gold)}
 .dform{margin-top:10px;font-size:11.5px;color:var(--ink-dim);line-height:1.7}
 .dform b{display:block;color:var(--gold);font-weight:700;margin-bottom:2px}
 .dmemo{margin-top:10px;font-size:11.5px;color:var(--ink-dim);line-height:1.7}
@@ -1405,11 +1409,23 @@ function renderTeams(){
           ${r.odds?`<span class="dodds">優勝オッズ <b class="rk ${r.rank}">${r.rank}</b>${r.odds.toFixed(1)}倍</span>`:""}
         </div>
         <div class="dstats">
+          <span class="dsrc">地方大会</span>
           <span>打率 <b>${r.avg||"—"}</b></span>
           <span>平均失点 <b>${r.era||"—"}</b></span>
           <span>平均得点 <b>${r.runs||"—"}</b></span>
           <span>失策 <b>${r.err||"—"}</b></span>
         </div>
+        ${(()=>{
+          const k = koshienAgg(r.name), ks = kstatAgg(r.name);
+          if(!k) return "";
+          return `<div class="dstats kdstats">
+            <span class="dsrc">甲子園${k.n}試合</span>
+            <span>打率 <b>${ks&&ks.avg!==null?ks.avg.toFixed(3).replace(/^0/,""):"—"}</b></span>
+            <span>平均失点 <b>${k.avgA.toFixed(2)}</b></span>
+            <span>平均得点 <b>${k.avgF.toFixed(2)}</b></span>
+            <span>失策 <b>${ks?ks.errPer.toFixed(2):"—"}</b></span>
+          </div>`;
+        })()}
         ${f?`<div class="dform"><b>${f[0]}</b>${f[1]}</div>`:(r.memo?`<div class="dmemo">${r.memo}</div>`:"")}
         <div class="dlabel">甲子園での戦績</div>
         ${pastHtml}
