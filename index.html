@@ -203,35 +203,6 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:10px;
 .uwho{margin-left:auto;font-family:var(--gothic);font-size:11.5px;color:var(--ink-dim)}
 .unone{font-family:var(--min);font-size:13px;color:var(--ink-dim);padding:16px;border:1px solid var(--line);background:rgba(0,0,0,.24);margin:0}
 
-/* もしもシミュレーション */
-.simres{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
-.simcard{background:rgba(255,255,255,.03);border:1px solid var(--line);border-left:3px solid var(--accent);padding:10px 12px;display:flex;flex-direction:column;gap:2px}
-.simord{font-family:var(--min);font-size:10.5px;letter-spacing:.14em;color:var(--ink-dim)}
-.simnm{font-family:var(--min);font-weight:700;font-size:14px;color:var(--accent)}
-.simpt{font-family:var(--num);font-weight:700;font-size:22px}
-.simpt small{font-family:var(--gothic);font-size:10px;color:var(--ink-dim);margin-left:2px;font-weight:400}
-.simadd{font-family:var(--num);font-size:11.5px;color:var(--clay)}
-.simpay{font-family:var(--gothic);font-size:12px;color:var(--ink-dim);padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:14px;line-height:1.7}
-.simpay b{color:var(--ink);font-weight:700}
-.simpay b:last-of-type{font-family:var(--num);color:var(--clay);font-size:15px}
-.simpay span{font-size:11px}
-.simrow{padding:10px 0;border-bottom:1px dotted rgba(243,239,226,.09)}
-.simmeta{font-family:var(--num);font-size:11px;color:var(--ink-dim);margin-bottom:6px}
-.simwin{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-dim);margin-bottom:7px}
-.simw{
-  font-family:var(--min);font-size:12px;background:transparent;color:var(--ink-dim);
-  border:1px solid var(--line);padding:5px 12px;cursor:pointer;transition:.2s;
-}
-.simw.on{background:var(--clay);color:#1b1006;border-color:var(--clay);font-weight:700}
-.simps{display:flex;gap:5px;flex-wrap:wrap}
-.simp{
-  font-family:var(--gothic);font-size:10.5px;background:transparent;color:var(--ink-dim);
-  border:1px dashed var(--line);padding:5px 10px;cursor:pointer;display:flex;gap:5px;align-items:center;transition:.2s;
-}
-.simp i{font-style:normal;font-family:var(--min);color:var(--ink-dim)}
-.simp.a,.simp.b{border-style:solid;border-color:var(--accent);color:var(--accent)}
-.simp.a i,.simp.b i{color:var(--ink)}
-
 /* 予想入力 */
 .pbox{border:1px solid var(--line);background:rgba(0,0,0,.24);padding:18px 16px}
 .pask{font-family:var(--min);font-size:13px;color:var(--ink-dim);margin:0 0 12px;letter-spacing:.06em}
@@ -464,7 +435,6 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   .hero h1 .t2{margin-top:10px}
   .standings{grid-template-columns:1fr}
   .personal{grid-template-columns:1fr}
-  .simres{grid-template-columns:1fr}
   .champions{grid-template-columns:1fr}
   .cards{grid-template-columns:1fr}
   .rules{grid-template-columns:1fr}
@@ -525,7 +495,7 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   <div class="lamp" id="lamp"></div>
   <nav class="secnav" id="secnav">
     <a href="#nav-board">戦況</a><a href="#nav-predict">予想</a><a href="#nav-standings">順位</a><a href="#nav-personal">個人成績</a><a href="#nav-champions">優勝予想</a>
-    <a href="#nav-comeback">逆転</a><a href="#nav-upsets">大穴</a><a href="#nav-sim">もしも</a>
+    <a href="#nav-comeback">逆転</a><a href="#nav-upsets">大穴</a>
     <a href="#nav-chart">推移</a><a href="#nav-schedule">日程</a><a class="hot" href="#today-anchor" id="navToday">本日</a>
     <a href="#nav-teams">出場校</a><a id="navTrends" href="#trendsWrap" style="display:none">傾向</a><a href="#nav-rules">規定</a>
   </nav>
@@ -597,11 +567,6 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
     <div class="head"><h2>大穴的中</h2><em>Big Hits</em></div>
     <div class="upsets" id="upsets"></div>
     <p class="fine" style="margin:9px 2px 0;font-size:11.5px;color:var(--ink-dim)">オッズが高い側（対抗）を当てた試合を、倍率の高い順に表示</p>
-  </section>
-
-  <section class="reveal" id="nav-sim">
-    <div class="head"><h2>もしもシミュレーション</h2><em>What If</em></div>
-    <div id="sim"></div>
   </section>
 
   <section class="reveal" id="nav-chart">
@@ -1136,85 +1101,6 @@ function bindPredict(){
   });
 }
 
-/* ---------- もしもシミュレーション ---------- */
-const SIM_KEY = "koshien_sim_v1";
-let SIM = (function(){ try{ return JSON.parse(localStorage.getItem(SIM_KEY)||"{}"); }catch(e){ return {}; } })();
-function saveSim(){ try{ localStorage.setItem(SIM_KEY, JSON.stringify(SIM)); }catch(e){} }
-function renderSim(){
-  const box = document.getElementById("sim");
-  if(!box) return;
-  const list = upcomingGames();
-  if(!list.length){ box.innerHTML = `<p class="unone">シミュレーションできる試合がありません</p>`; return; }
-
-  // 各試合について、3人が誰を選ぶか SIM[gameId][playerName] = 0/1
-  const sim = SIM.picks || (SIM.picks = {});
-  const add = {}; PLAYERS.forEach(p=>add[p.name]=0);
-  let setCount = 0;
-  list.forEach(it=>{
-    const s = sim[it.id]; if(!s) return;
-    const wSide = s.win;
-    if(wSide!==0 && wSide!==1) return;
-    setCount++;
-    PLAYERS.forEach(p=>{
-      if(s[p.name]===wSide) add[p.name] += (wSide===0 ? it.g.oa : it.g.ob);
-    });
-  });
-
-  const finals = PLAYERS.map(p=>{
-    const cur = STATE.run[p.name] || 0;
-    return {...p, cur, add:r1(add[p.name]), fin:r1(cur + add[p.name])};
-  }).sort((a,b)=>b.fin-a.fin);
-  const top = finals[0].fin;
-  const last = finals[finals.length-1];
-  const pay = Math.round((top - last.fin)*RATE);
-
-  const rows = list.map(it=>{
-    const s = sim[it.id] || {};
-    const wbtn = (side)=>`<button class="simw ${s.win===side?"on":""}" data-id="${it.id}" data-w="${side}">${side===0?it.g.a:it.g.b}</button>`;
-    const pbtns = PLAYERS.map(p=>{
-      const v = s[p.name];
-      return `<button class="simp ${v===0?"a":v===1?"b":""}" data-id="${it.id}" data-p="${p.name}" style="--accent:${p.color}">
-        ${p.name}<i>${v===0?it.g.a:v===1?it.g.b:"—"}</i></button>`;
-    }).join("");
-    return `<div class="simrow">
-      <div class="simmeta">${it.date}　第${it.no}試合</div>
-      <div class="simwin">勝つのは：${wbtn(0)}${wbtn(1)}</div>
-      <div class="simps">${pbtns}</div>
-    </div>`;
-  }).join("");
-
-  box.innerHTML = `<div class="pbox">
-    <div class="simres">
-      ${finals.map((p,i)=>`<div class="simcard" style="--accent:${p.color}">
-        <span class="simord">${["1位","2位","3位"][i]}</span>
-        <span class="simnm">${p.name}</span>
-        <span class="simpt">${p.fin}<small>pt</small></span>
-        <span class="simadd">${p.add>0?`+${p.add}`:"±0"}</span>
-      </div>`).join("")}
-    </div>
-    <div class="simpay">この結果なら <b>${last.name}</b> が <b>${finals[0].name}</b> に <b>¥${pay.toLocaleString()}</b> 支払い　<span>（${setCount}/${list.length}試合を設定中）</span></div>
-    ${rows}
-    <div class="pacts"><button class="pact ghost" id="simClear">シミュをリセット</button></div>
-    <p class="pnote">勝つ学校と、3人それぞれの予想を仮に入れて結果を試せます。この端末にのみ保存されます。</p>
-  </div>`;
-
-  document.querySelectorAll(".simw").forEach(b=>b.addEventListener("click",()=>{
-    const id=b.dataset.id, w=+b.dataset.w;
-    SIM.picks[id] = SIM.picks[id] || {};
-    if(SIM.picks[id].win===w) delete SIM.picks[id].win; else SIM.picks[id].win = w;
-    saveSim(); renderSim();
-  }));
-  document.querySelectorAll(".simp").forEach(b=>b.addEventListener("click",()=>{
-    const id=b.dataset.id, nm=b.dataset.p;
-    SIM.picks[id] = SIM.picks[id] || {};
-    const v = SIM.picks[id][nm];
-    SIM.picks[id][nm] = (v===undefined) ? 0 : (v===0 ? 1 : undefined);
-    if(SIM.picks[id][nm]===undefined) delete SIM.picks[id][nm];
-    saveSim(); renderSim();
-  }));
-  const cl = document.getElementById("simClear");
-  if(cl) cl.addEventListener("click",()=>{ SIM.picks={}; saveSim(); renderSim(); });
-}
 
 function renderPersonal(){
   const rec = {}; PLAYERS.forEach(p=>rec[p.name]={hit:0,total:0,seq:[]});
@@ -1514,7 +1400,6 @@ function renderAll(){
   safe("predict", renderPredict);
   safe("comeback", renderComeback);
   safe("upsets", renderUpsets);
-  safe("sim", renderSim);
   safe("chart", renderChart);
   safe("timeline", renderTimeline);
   safe("teams", renderTeams);
