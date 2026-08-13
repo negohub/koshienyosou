@@ -276,6 +276,18 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:10px;
 .pteam b{font-family:var(--num);font-size:13px;color:var(--clay);font-weight:600;flex:0 0 auto}
 .pteam.on b{color:var(--gold)}
 .pvs{font-family:var(--num);font-size:11px;color:var(--ink-dim);flex:0 0 auto}
+.pbadge{margin-left:8px;font-style:normal;font-size:10.5px;padding:2px 7px;border-radius:20px;background:rgba(201,168,90,.16);color:var(--gold);letter-spacing:.04em}
+.pbadge.sf{background:rgba(229,155,60,.18);color:#E59B3C}
+.pbudget{margin:6px 0 8px;padding:7px 10px;border-radius:8px;font-size:11.5px;font-family:var(--num);letter-spacing:.02em}
+.pbudget.ok{background:rgba(201,168,90,.12);color:var(--gold)}
+.pbudget.warn{background:rgba(220,80,80,.12);color:#e08585}
+.pbudget b{font-size:13px}
+.pbet{display:flex;align-items:center;gap:7px;margin-top:6px;padding-left:2px}
+.pbetl{font-size:10.5px;color:var(--ink-dim);letter-spacing:.04em}
+.pbetb{width:24px;height:24px;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:14px;line-height:1;cursor:pointer}
+.pbetb:disabled{opacity:.3;cursor:default}
+.pbetv{font-family:var(--num);font-size:14px;min-width:16px;text-align:center;color:var(--gold)}
+.pbetx{font-size:10.5px;color:var(--ink-dim);margin-left:auto}
 .pacts{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
 .pact{
   font-family:var(--min);font-size:12.5px;letter-spacing:.1em;cursor:pointer;
@@ -362,8 +374,19 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:10px;
 .restday .dow{font-size:.6em}
 .dayhead .rd{font-family:var(--min);font-size:11.5px;letter-spacing:.14em;color:var(--clay);border:1px solid rgba(180,98,44,.45);padding:2px 10px}
 .dayhead .rd.f{color:#fff;background:var(--crimson);border-color:var(--crimson);font-weight:700}
+.dayhead .rd.qf{color:#1a1408;background:var(--gold);border-color:var(--gold);font-weight:700}
+.dayhead .rd.sf{color:#1a1408;background:#E59B3C;border-color:#E59B3C;font-weight:700}
 .day.final{border-left-color:var(--crimson)}
+.day.qf-day{border-left-color:var(--gold)}
+.day.sf-day{border-left-color:#E59B3C}
 .day.final .g{border-color:rgba(142,18,32,.55);background:linear-gradient(180deg,rgba(142,18,32,.16),rgba(0,0,0,.24))}
+.g.qf{position:relative;border-color:rgba(229,185,60,.45);background:linear-gradient(180deg,rgba(229,185,60,.10),rgba(0,0,0,.22))}
+.g.sf{position:relative;border-color:rgba(229,150,60,.55);background:linear-gradient(180deg,rgba(229,150,60,.14),rgba(0,0,0,.24))}
+.g.gf{position:relative}
+.rmark{position:absolute;top:-1px;right:-1px;font-family:var(--min);font-size:10px;letter-spacing:.12em;padding:3px 9px 3px 11px;border-radius:0 8px 0 8px;font-weight:700}
+.rmark.qf{background:var(--gold);color:#1a1408}
+.rmark.sf{background:#E59B3C;color:#1a1408}
+.rmark.gf{background:var(--crimson);color:#fff}
 .flagnote{font-family:var(--min);font-size:12px;letter-spacing:.14em;color:#E9808C;margin-top:10px}
 .dayhead .tally{margin-left:auto;display:flex;gap:14px;font-family:var(--num);font-size:13px;letter-spacing:.04em}
 .wbadge{
@@ -653,6 +676,17 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
         </ul>
       </div>
       <div class="rulebox">
+        <h3>ポイントベット制</h3>
+        <p class="fine" style="margin:0 0 7px">準々決勝・準決勝の2日間のみ適用</p>
+        <ul>
+          <li>持ち点は<b>準々決勝8pt</b>・<b>準決勝4pt</b></li>
+          <li>持ち点を各試合に好きな割合で配分する</li>
+          <li>全試合に<b>必ず1pt以上</b>ベットすること</li>
+          <li>1試合につき選択できるのは<b>1校のみ</b>（両校賭けは不可）</li>
+          <li>的中したら<b>ベット額 ×オッズ</b>を獲得</li>
+        </ul>
+      </div>
+      <div class="rulebox">
         <h3>報酬</h3>
         <ul>
           <li>全試合終了後の総点数で比較</li>
@@ -872,6 +906,8 @@ const DAYS = [
 /* ---------- 共通 ---------- */
 const r1 = n => Math.round(n*10)/10;
 const byDate = d => DAYS.find(x=>x.d===d);
+/* ポイントベット制：準々決勝・準決勝のみ、持ち点を各試合に配分する */
+const BET_BUDGET = {"準々決勝":8, "準決勝":4};
 const winnerOf = g => !g ? null : (g.s ? (g.s[0]>g.s[1]?0:1) : (g.w===undefined?null:g.w));
 const winnerName = g => { const w=winnerOf(g); return w===null?null:(w===0?g.a:g.b); };
 
@@ -910,7 +946,13 @@ function compute(sheet){
         s = sheet.pts[p.name][d.d];
       }else{
         s = 0;
-        (d.games||[]).forEach(g=>{ if(g.hits && g.hits.includes(p.name)) s += (winnerOf(g)===0 ? g.oa : g.ob); });
+        (d.games||[]).forEach(g=>{
+          if(g.hits && g.hits.includes(p.name)){
+            const odd = (winnerOf(g)===0 ? g.oa : g.ob);
+            const bet = (BET_BUDGET[g.r] && g.bets && g.bets[p.name]) ? g.bets[p.name] : 1;
+            s += odd * bet;
+          }
+        });
         s += ((d.bonus||{})[p.name]||0);
       }
       s = r1(s);
@@ -969,9 +1011,6 @@ function renderStandings(){
 /* ---------- 個人の的中率 ---------- */
 /* ---------- 週間天気（西宮・8/10 16:00発表 tenki.jpより） ---------- */
 const WEATHER = {
- "8/11":{icon:"🌤",text:"晴時々曇",hi:33,lo:24,pop:20},
- "8/12":{icon:"🌧",text:"雨時々曇",hi:28,lo:25,pop:100,mm:35,alert:true},
- "8/13":{icon:"🌧",text:"雨のち晴",hi:30,lo:24,pop:70,mm:9},
  "8/14":{icon:"🌤",text:"晴時々曇",hi:33,lo:25,pop:40},
  "8/15":{icon:"🌦",text:"晴一時雨",hi:33,lo:26,pop:60,mm:2},
  "8/16":{icon:"⛅",text:"曇",hi:33,lo:25,pop:60},
@@ -1090,24 +1129,50 @@ function renderPredict(){
   }
 
   let expect = 0, done = 0;
+  const bets = PRED.bets || (PRED.bets = {});
   const byDate = {};
   list.forEach(it=>{ (byDate[it.date] = byDate[it.date] || []).push(it); });
   const days = Object.keys(byDate).map(date=>{
-    const rows = byDate[date].map(it=>{
+    const items = byDate[date];
+    const round = items[0].round;
+    const budget = BET_BUDGET[round] || 0;
+    let used = 0, allPicked = true;
+    if(budget){
+      items.forEach(it=>{
+        if(bets[it.id]===undefined) bets[it.id] = 1;
+        used += bets[it.id];
+        if(!(picks[it.id]===0 || picks[it.id]===1)) allPicked = false;
+      });
+    }
+    const left = budget - used;
+    const rows = items.map(it=>{
       const sel = picks[it.id];
-      if(sel===0 || sel===1){ done++; expect += (sel===0 ? it.g.oa : it.g.ob); }
+      const bet = budget ? (bets[it.id]||1) : 1;
+      if(sel===0 || sel===1){ done++; expect += (sel===0 ? it.g.oa : it.g.ob) * bet; }
       const btn = (side)=>{
         const name = side===0 ? it.g.a : it.g.b;
         const odd  = side===0 ? it.g.oa : it.g.ob;
         return `<button class="pteam ${sel===side?"on":""}" data-id="${it.id}" data-side="${side}">
           <span class="ptn">${name}</span><b>${odd.toFixed(1)}</b></button>`;
       };
+      const betRow = !budget ? "" : `<div class="pbet">
+        <span class="pbetl">ベット</span>
+        <button class="pbetb" data-bet="${it.id}" data-delta="-1" ${bet<=1?"disabled":""}>−</button>
+        <b class="pbetv">${bet}</b>
+        <button class="pbetb" data-bet="${it.id}" data-delta="1" ${left<=0?"disabled":""}>＋</button>
+        <span class="pbetx">${(sel===0||sel===1) ? `的中で +${Math.round((sel===0?it.g.oa:it.g.ob)*bet*10)/10}pt` : "未選択"}</span>
+      </div>`;
       return `<div class="prow">
         <div class="pmeta">第${it.no}試合　${it.time}</div>
         <div class="pbtns">${btn(0)}<span class="pvs">×</span>${btn(1)}</div>
+        ${betRow}
       </div>`;
     }).join("");
-    return `<div class="pday"><div class="pdate">${date}<i class="dow ${dowInfo(date).cls}">(${dowInfo(date).label})</i></div>${rows}</div>`;
+    const budgetBar = !budget ? "" : `<div class="pbudget ${left===0&&allPicked?"ok":"warn"}">
+      持ち点 <b>${budget}</b>pt　使用 <b>${used}</b>　残り <b>${left}</b>
+      ${left!==0 ? "　※残りをすべて配分してください" : (allPicked ? "　配分完了" : "　※全試合の予想を選んでください")}
+    </div>`;
+    return `<div class="pday"><div class="pdate">${date}<i class="dow ${dowInfo(date).cls}">(${dowInfo(date).label})</i>${budget?`<em class="pbadge ${round==="準決勝"?"sf":"qf"}">${round}・ポイントベット制</em>`:""}</div>${budgetBar}${rows}</div>`;
   }).join("");
 
   box.innerHTML = `<div class="pbox">
@@ -1132,15 +1197,26 @@ function bindPredict(){
     if(PRED.picks[id]===side) delete PRED.picks[id]; else PRED.picks[id]=side;
     savePred(); renderPredict();
   }));
+  document.querySelectorAll(".pbetb").forEach(b=>b.addEventListener("click",()=>{
+    const id = b.dataset.bet, delta = +b.dataset.delta;
+    PRED.bets = PRED.bets || {};
+    const cur = PRED.bets[id]===undefined ? 1 : PRED.bets[id];
+    const next = cur + delta;
+    if(next < 1) return;
+    PRED.bets[id] = next;
+    savePred(); renderPredict();
+  }));
   const clear = document.getElementById("predClear");
-  if(clear) clear.addEventListener("click",()=>{ PRED.picks={}; savePred(); renderPredict(); });
+  if(clear) clear.addEventListener("click",()=>{ PRED.picks={}; PRED.bets={}; savePred(); renderPredict(); });
   const copy = document.getElementById("predCopy");
   if(copy) copy.addEventListener("click",()=>{
-    const picks = PRED.picks||{}, lines = [], byDate = {};
+    const picks = PRED.picks||{}, bets = PRED.bets||{}, lines = [], byDate = {};
     upcomingGames().forEach(it=>{
       const sel = picks[it.id]; if(sel!==0 && sel!==1) return;
+      const budget = BET_BUDGET[it.round] || 0;
+      const bet = budget ? (bets[it.id]===undefined?1:bets[it.id]) : 0;
       (byDate[it.date] = byDate[it.date] || []).push(
-        `第${it.no}試合 ${sel===0?it.g.a:it.g.b}(${(sel===0?it.g.oa:it.g.ob).toFixed(1)})`);
+        `第${it.no}試合 ${sel===0?it.g.a:it.g.b}(${(sel===0?it.g.oa:it.g.ob).toFixed(1)})${bet?` ベット${bet}pt`:""}`);
     });
     if(!Object.keys(byDate).length){ copy.textContent="予想が未選択です"; setTimeout(()=>copy.textContent="予想をコピー",1600); return; }
     lines.push(`【${PRED.who}の予想】`);
@@ -1332,9 +1408,11 @@ function gameCard(g,i,done){
       const h = g.hits.includes(p.name);
       return `<span class="chip ${h?"":"miss"}" style="${h?`--c:${p.color}`:""}">${p.name}${h?" 的中":" 外れ"}</span>`;
     }).join("")}</div>` : "";
-  return `<div class="g ${g.a?"":"tbd"} ${g.void?"void":""}">
+  const roundCls = g.r==="準々決勝" ? "qf" : g.r==="準決勝" ? "sf" : g.r==="決勝" ? "gf" : "";
+  const roundTag = roundCls ? `<span class="rmark ${roundCls}">${g.r}</span>` : "";
+  return `<div class="g ${g.a?"":"tbd"} ${g.void?"void":""} ${roundCls}">
     <div class="gh"><span class="no">第${i+1}試合　${g.r||""}${g.tag?`<span class="hot">★${g.tag}</span>`:""}</span><span class="tm">${g.t}</span></div>
-    ${rows}${stats}${hits}
+    ${roundTag}${rows}${stats}${hits}
   </div>`;
 }
 function renderTimeline(){
@@ -1351,13 +1429,14 @@ function renderTimeline(){
     const tally = (idx>=0) ? `<span class="tally">${PLAYERS.map(p=>
         `<span style="color:${p.color}">${p.name} ${daily[p.name][idx]>0?"+":""}${daily[p.name][idx]}</span>`).join("")}</span>` : "";
     const rounds = [...new Set(d.games.map(g=>g.r).filter(Boolean))].join("・");
+    const rdCls = d.final ? "f" : rounds.includes("準々決勝") ? "qf" : rounds.includes("準決勝") ? "sf" : "";
     const b = Object.entries(d.bonus||{}).map(([n,v])=>
       `<div class="bonus ${v<0?"minus":""}">${v>0?"◎ 全試合的中":"▽ 全試合外し"}　${n} ${v>0?"+":""}${v}pt</div>`).join("");
     const off = d.scored===false ? `<span class="nth">予想対象外</span>` : "";
-    return `<article class="day ${d.final?"final":""} ${d.now?"now":(done?"done":"")}" ${d.now?'id="today-anchor"':""}>
+    return `<article class="day ${d.final?"final":""} ${rdCls==="qf"?"qf-day":""} ${rdCls==="sf"?"sf-day":""} ${d.now?"now":(done?"done":"")}" ${d.now?'id="today-anchor"':""}>
       <div class="dayhead">
         <span class="d">${d.d}<i class="dow ${dowInfo(d.d).cls}">(${dowInfo(d.d).label}${dowInfo(d.d).holiday?"・祝":""})</i></span><span class="nth">${d.nth}</span>
-        <span class="rd ${d.final?"f":""}">${rounds}</span>${off}
+        <span class="rd ${rdCls}">${rounds}</span>${off}
         ${d.now?'<span class="badge-now">本日</span>':""}${tally}
       </div>
       ${wbadge(d.d)}
