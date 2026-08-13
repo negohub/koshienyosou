@@ -996,6 +996,7 @@ function upcomingGames(){
     if(d.rest) return;
     (d.games||[]).forEach((g,i)=>{
       if(!g.a || !g.b) return;
+      if(g.void) return;
       if(winnerOf(g)!==null) return;
       if(g.oa===undefined || g.ob===undefined) return;
       out.push({id:`${d.d}-${i}`, date:d.d, no:i+1, time:g.t, round:g.r, g});
