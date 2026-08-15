@@ -308,7 +308,13 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:10px;
 .intro>p{padding:0 13px}
 .intro>p:first-of-type{padding-top:10px}
 .intro>p:last-child{padding-bottom:11px}
-.tlsep{margin:22px 2px 10px;font-size:11.5px;letter-spacing:.1em;color:var(--ink-dim);border-top:1px solid var(--line);padding-top:10px}
+.tlpast{margin-top:20px;border:1px solid var(--line);border-radius:10px;background:rgba(243,239,226,.02)}
+.tlpast>summary{list-style:none;cursor:pointer;padding:10px 13px;font-size:11.5px;letter-spacing:.1em;color:var(--ink-dim)}
+.tlpast>summary::-webkit-details-marker{display:none}
+.tlpast>summary::after{content:"＋";float:right;opacity:.6}
+.tlpast[open]>summary::after{content:"−"}
+.tlpast[open]>summary{border-bottom:1px solid var(--line);color:var(--gold)}
+.tlpastb{padding:12px 10px}
 .intro p{margin:0 0 4px;font-size:12.5px;line-height:1.75}
 .intro p:last-child{margin-bottom:0}
 .intro p.dim{color:var(--ink-dim);font-size:11.5px;margin-top:7px}
@@ -1614,18 +1620,16 @@ function renderTimeline(){
     if(!w) return "";
     return `<span class="wbadge ${w.alert?"walert2":""}">${w.icon} ${w.hi}°/${w.lo}° 降水${w.pop}%${w.alert?'<b>順延の可能性</b>':""}</span>`;
   };
-  /* 本日 → これからの日程 → 終了した日程 の順に並べ替える */
+  /* 本日とこれからの日程を先に出し、終了した日程は折りたたむ */
   const nowIdx = DAYS.findIndex(d=>d.now);
-  const ordered = nowIdx < 0 ? DAYS.slice()
-    : [...DAYS.slice(nowIdx), ...DAYS.slice(0, nowIdx)];
-  let pastMark = false;
-  document.getElementById("timeline").innerHTML = ordered.map(d=>{
-    let sep = "";
-    if(nowIdx >= 0 && !pastMark && DAYS.indexOf(d) < nowIdx){
-      pastMark = true; sep = `<div class="tlsep">終了した日程</div>`;
-    }
-    return sep + dayCard(d);
-  }).join("");
+  const future = nowIdx < 0 ? DAYS.slice() : DAYS.slice(nowIdx);
+  const past   = nowIdx < 0 ? []           : DAYS.slice(0, nowIdx);
+  const pastHtml = past.length
+    ? `<details class="tlpast"><summary>終了した日程（${past.length}日ぶん）</summary>
+       <div class="tlpastb">${past.map(d=>dayCard(d)).join("")}</div></details>`
+    : "";
+  document.getElementById("timeline").innerHTML =
+    future.map(d=>dayCard(d)).join("") + pastHtml;
   function dayCard(d){
     if(d.rest) return `<div class="restday"><b>${d.d}<i class="dow ${dowInfo(d.d).cls}">(${dowInfo(d.d).label})</i></b>休養日${wbadge(d.d)}</div>`;
     const done = (d.games||[]).some(g=>winnerOf(g)!==null);
