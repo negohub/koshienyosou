@@ -1054,6 +1054,7 @@ function renderComeback(){
   DAYS.forEach(d=>{
     if(d.rest) return;
     (d.games||[]).forEach(g=>{
+      if(g.void) return;
       if(winnerOf(g)!==null) return;
       remain++;
       if(g.oa!==undefined && g.ob!==undefined){ oddsSum += Math.max(g.oa,g.ob); oddsN++; }
