@@ -282,6 +282,35 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:10px;
 .pbudget.ok{background:rgba(201,168,90,.12);color:var(--gold)}
 .pbudget.warn{background:rgba(220,80,80,.12);color:#e08585}
 .pbudget b{font-size:13px}
+.intro{margin:0 0 16px;padding:0;border:1px solid var(--line);border-radius:10px;background:rgba(243,239,226,.02)}
+.intro>summary{list-style:none;cursor:pointer;padding:9px 13px;font-size:12px;letter-spacing:.06em;color:var(--gold)}
+.intro>summary::-webkit-details-marker{display:none}
+.intro>summary::after{content:"＋";float:right;opacity:.6}
+.intro[open]>summary::after{content:"−"}
+.intro[open]>summary{border-bottom:1px solid var(--line)}
+.intro>p{padding:0 13px}
+.intro>p:first-of-type{padding-top:10px}
+.intro>p:last-child{padding-bottom:11px}
+.tlsep{margin:22px 2px 10px;font-size:11.5px;letter-spacing:.1em;color:var(--ink-dim);border-top:1px solid var(--line);padding-top:10px}
+.intro p{margin:0 0 4px;font-size:12.5px;line-height:1.75}
+.intro p:last-child{margin-bottom:0}
+.intro p.dim{color:var(--ink-dim);font-size:11.5px;margin-top:7px}
+.intro b{color:var(--ink)}
+.intro p.dim b,.intro a{color:var(--gold)}
+.hint{margin:4px 2px 10px;font-size:11.5px;line-height:1.7;color:var(--ink-dim)}
+.cbdays{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.cbday{font-size:11px;font-family:var(--num);padding:3px 8px;border-radius:6px;border:1px solid var(--line);color:var(--ink-dim)}
+.cbday i{font-style:normal;color:var(--gold);margin-left:4px}
+.cbday1{font-style:normal;color:var(--gold);font-size:11px}
+.stbox{margin-top:12px;padding:11px 12px;border:1px solid var(--line);border-radius:10px}
+.sthead{font-size:12px;letter-spacing:.08em;color:var(--ink-dim);margin-bottom:7px}
+.stline{font-size:12.5px;line-height:1.75;font-family:var(--num)}
+.stline.hit{color:var(--gold)}
+.stline.dim{color:var(--ink-dim)}
+.stnet{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px;padding-top:9px;border-top:1px solid var(--line)}
+.stn{font-size:12.5px;font-family:var(--num)}
+.stn.plus{color:var(--gold)}
+.stn.minus{color:#e08585}
 .pbetreset{margin-left:8px;padding:3px 8px;border-radius:6px;border:1px solid var(--line);background:transparent;color:inherit;font-size:11px;cursor:pointer;font-family:inherit}
 .prow.closed{opacity:.45}
 .prow.closed .pteam{cursor:default}
@@ -567,8 +596,8 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   <div class="entrants"><b>畑　山</b><b>根　来</b><b>今　井</b></div>
   <div class="lamp" id="lamp"></div>
   <nav class="secnav" id="secnav">
-    <a class="hot" href="#today-anchor" id="navToday">本日</a><a href="#nav-predict">予想</a><a href="#nav-schedule">日程</a>
-    <a href="#nav-board">戦況</a><a href="#nav-standings">順位</a><a href="#nav-personal">個人成績</a>
+    <a href="#nav-board">戦況</a><a class="hot" href="#today-anchor" id="navToday">本日</a><a href="#nav-predict">予想</a>
+    <a href="#nav-schedule">日程</a><a href="#nav-standings">順位</a><a href="#nav-personal">個人成績</a>
     <a href="#nav-teams">出場校</a><a href="#nav-upsets">大穴</a><a href="#nav-comeback">逆転</a>
     <a href="#nav-chart">推移</a><a id="navTrends" href="#trendsWrap" style="display:none">傾向</a>
     <a href="#nav-champions">優勝予想</a><a href="#nav-rules">規定</a>
@@ -598,8 +627,16 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
 </svg>
 <div class="wrap">
 
+  <details class="intro">
+    <summary>この大会のルール</summary>
+    <p>3人で<b>全試合の勝敗を予想</b>し、当てたらオッズぶんのptが入ります。</p>
+    <p>全日程終了時、<b>最下位が首位に「点差×100円」</b>を支払います。</p>
+    <p class="dim">準々決勝・準決勝は持ち点を配分する<b>ポイントベット制</b>。<a href="#nav-rules">規定を見る</a></p>
+  </details>
+
   <section class="reveal" id="nav-board">
     <div class="head"><h2>戦況</h2><em>Live Board</em></div>
+    <p class="hint">数字はその日に獲得したpt。当てた試合のオッズの合計です。</p>
     <div class="board" id="board" data-nav="board"><table class="line" id="lineTable"></table></div>
     <div class="tools">
       <button class="toggle" id="toggleDays" type="button">全日程を表示</button>
@@ -608,41 +645,40 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
     </div>
     <p class="fine" style="margin:9px 2px 0;font-size:11.5px;color:var(--ink-dim)">3人の日別得点を、消化した試合の分だけ手動式スコアボードの形で表示</p>
   </section>
-
+  <section class="reveal" id="nav-predict">
+    <div class="head"><h2>予想入力</h2><em>Your Pick</em></div>
+    <p class="hint">オッズ＝的中時の倍率。2.1の側を当てれば +2.1pt。数字が大きいほど不利と見られている側です。</p>
+    <div id="predict"></div>
+  </section>
+  <section class="reveal" id="nav-schedule">
+    <div class="head"><h2>大会日程</h2><em>8/5 → 8/22</em></div>
+    <div id="timeline"></div>
+  </section>
   <section class="reveal" id="nav-standings">
     <div class="head"><h2>順位</h2><em>Standings</em></div>
     <div class="standings" id="standings"></div>
+    <div id="settlement"></div>
     <p class="fine" style="margin:9px 2px 0;font-size:11.5px;color:var(--ink-dim)">首位との点差と、現時点で3位が支払う精算額の目安を表示</p>
   </section>
-
   <section class="reveal" id="nav-personal">
     <div class="head"><h2>個人成績</h2><em>Hit Rate</em></div>
     <div class="personal" id="personal"></div>
     <p class="fine" style="margin:9px 2px 0;font-size:11.5px;color:var(--ink-dim)">これまでの全試合を通算した、各自の予想の勝敗と的中率。○✕は開幕からの全試合の流れ、現在の連勝・連敗も表示</p>
   </section>
-
-  <section class="reveal" id="nav-predict">
-    <div class="head"><h2>予想入力</h2><em>Your Pick</em></div>
-    <div id="predict"></div>
+  <section class="reveal" id="nav-teams">
+    <div class="head"><h2>出場校 戦力一覧</h2><em id="teamCount"></em></div>
+    <div class="tablewrap" id="teams"></div>
+    <p class="fine" style="margin:8px 2px 0;font-size:11.5px;color:var(--ink-dim)">見出しをタップで並び替え／校名をタップでそのチームの詳細</p>
   </section>
-
-  <section class="reveal" id="nav-champions">
-    <div class="head"><h2>優勝予想</h2><em>Champion Pick</em></div>
-    <div class="champions" id="champions"></div>
-    <p class="fine" style="margin:9px 2px 0;font-size:11.5px;color:var(--ink-dim)">的中者はオッズ×100円を、外した2人それぞれから受け取る</p>
-  </section>
-
-  <section class="reveal" id="nav-comeback">
-    <div class="head"><h2>逆転ライン</h2><em>Comeback</em></div>
-    <div id="comeback"></div>
-  </section>
-
   <section class="reveal" id="nav-upsets">
     <div class="head"><h2>大穴的中</h2><em>Big Hits</em></div>
     <div class="upsets" id="upsets"></div>
     <p class="fine" style="margin:9px 2px 0;font-size:11.5px;color:var(--ink-dim)">オッズが高い側（対抗）を当てた試合を、倍率の高い順に表示</p>
   </section>
-
+  <section class="reveal" id="nav-comeback">
+    <div class="head"><h2>逆転ライン</h2><em>Comeback</em></div>
+    <div id="comeback"></div>
+  </section>
   <section class="reveal" id="nav-chart">
     <div class="head"><h2>得点推移</h2><em>Cumulative</em></div>
     <div class="chart" id="chartBox">
@@ -650,25 +686,16 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
       <div class="legend" id="legend"></div>
     </div>
   </section>
-
-  <section class="reveal" id="nav-teams">
-    <div class="head"><h2>出場校 戦力一覧</h2><em id="teamCount"></em></div>
-    <div class="tablewrap" id="teams"></div>
-    <p class="fine" style="margin:8px 2px 0;font-size:11.5px;color:var(--ink-dim)">見出しをタップで並び替え／校名をタップでそのチームの詳細</p>
-  </section>
-
-  <section class="reveal" id="nav-schedule">
-    <div class="head"><h2>大会日程</h2><em>8/5 → 8/22</em></div>
-    <div id="timeline"></div>
-  </section>
-
-  <a id="nav-trends"></a>
   <section class="reveal" id="trendsWrap" style="display:none">
     <div class="head"><h2>勝敗の傾向</h2><em>Round Trends</em></div>
     <div class="trendbox" id="trends"></div>
     <p class="fine" style="margin:9px 2px 0;font-size:11px;color:var(--ink-dim)">回戦ごとに、その試合のオッズで本命だった方／平均失点が少ない方が、実際どれだけ勝っているかを集計</p>
   </section>
-
+  <section class="reveal" id="nav-champions">
+    <div class="head"><h2>優勝予想</h2><em>Champion Pick</em></div>
+    <div class="champions" id="champions"></div>
+    <p class="fine" style="margin:9px 2px 0;font-size:11.5px;color:var(--ink-dim)">的中者はオッズ×100円を、外した2人それぞれから受け取る</p>
+  </section>
   <section class="reveal" id="nav-rules">
     <div class="head"><h2>大会規定</h2><em>Rules</em></div>
     <div class="rules">
@@ -1011,6 +1038,75 @@ function renderStandings(){
       <div class="pay">${last?`現時点の精算 <b>¥${(gap*RATE).toLocaleString()}</b> → ${totals[0].name}`:"&nbsp;"}</div>
     </div>`;
   }).join("");
+  renderSettlement();
+}
+
+/* ---------- 精算（点差＋優勝予想の配当） ---------- */
+function championWinner(){
+  let team = null;
+  DAYS.forEach(d=>(d.games||[]).forEach(g=>{
+    if(g.r !== "決勝") return;
+    const w = winnerOf(g); if(w===null) return;
+    team = w===0 ? g.a : g.b;
+  }));
+  return team;
+}
+function renderSettlement(){
+  const box = document.getElementById("settlement");
+  if(!box) return;
+  const {totals} = STATE;
+  if(totals.length < 3){ box.innerHTML = ""; return; }
+  const first = totals[0], third = totals[totals.length-1];
+  const ptGap = r1(first.pt - third.pt);
+  const ptPay = Math.round(ptGap * RATE);
+
+  const champ = championWinner();
+  const dead = eliminated();
+  const net = {}; PLAYERS.forEach(p=>net[p.name]=0);
+  net[third.name] -= ptPay; net[first.name] += ptPay;
+
+  let champHtml = "", decided = false;
+  const rows = PLAYERS.map(p=>{
+    const c = CHAMPION[p.name] || {};
+    if(!c.team) return null;
+    const hit  = champ && c.team === champ;
+    const miss = (champ && c.team !== champ) || dead.has(c.team);
+    return {name:p.name, team:c.team, odds:c.odds, hit, miss};
+  }).filter(Boolean);
+
+  const winner = rows.find(r=>r.hit);
+  const alive  = rows.filter(r=>!r.hit && !r.miss);
+  if(winner){
+    decided = true;
+    const pot = Math.round(winner.odds * RATE);
+    const each = Math.round(pot / 2);
+    net[winner.name] += pot;
+    rows.forEach(r=>{ if(r.name!==winner.name) net[r.name] -= each; });
+    champHtml = `<div class="stline hit">優勝予想的中　<b>${winner.name}</b>（${winner.team} ${winner.odds}倍）が
+      <b>¥${pot.toLocaleString()}</b> を受け取り（他の2人が各 ¥${each.toLocaleString()}）</div>`;
+  }else if(alive.length){
+    champHtml = alive.map(r=>{
+      const pot = Math.round(r.odds * RATE), each = Math.round(pot/2);
+      return `<div class="stline">${r.team}が優勝すれば　<b>${r.name}</b> +¥${pot.toLocaleString()}
+        ／他の2人が各 −¥${each.toLocaleString()}</div>`;
+    }).join("") + (rows.length - alive.length ?
+      `<div class="stline dim">${rows.filter(r=>r.miss).map(r=>`${r.name}（${r.team}）`).join("・")}は予想校が敗退済み</div>` : "");
+  }else{
+    decided = true;
+    champHtml = `<div class="stline dim">3人とも優勝予想が外れ。優勝配当の受け渡しはなし</div>`;
+  }
+
+  box.innerHTML = `<div class="stbox">
+    <div class="sthead">精算${decided?"":"（見込み）"}</div>
+    <div class="stline">点差精算　<b>${third.name}</b> が <b>${first.name}</b> へ ¥${ptPay.toLocaleString()}（${ptGap}pt差 × ¥${RATE}）</div>
+    ${champHtml}
+    <div class="stnet">${PLAYERS.map(p=>{
+      const v = net[p.name];
+      const amt = v>0 ? `+¥${v.toLocaleString()}` : v<0 ? `−¥${Math.abs(v).toLocaleString()}` : "±¥0";
+      return `<span class="stn ${v>0?"plus":v<0?"minus":""}">${p.name} ${amt}</span>`;
+    }).join("")}</div>
+    <p class="cbnote">${decided?"確定額です。":"現時点の点差と、優勝予想が当たった場合の想定額です。試合が進むと変わります。"}</p>
+  </div>`;
 }
 
 /* ---------- 個人の的中率 ---------- */
@@ -1055,33 +1151,54 @@ function renderComeback(){
   const {totals, topPt} = STATE;
   if(!totals.length){ box.innerHTML=""; return; }
   const leader = totals[0];
-  // 残り試合数とオッズの平均から、理論上の最大獲得ptを見積もる
-  let remain = 0, oddsSum = 0, oddsN = 0;
-  DAYS.forEach(d=>{
-    if(d.rest) return;
-    (d.games||[]).forEach(g=>{
-      if(g.void) return;
-      if(winnerOf(g)!==null) return;
-      remain++;
-      if(g.oa!==undefined && g.ob!==undefined){ oddsSum += Math.max(g.oa,g.ob); oddsN++; }
-    });
-  });
-  const avgHigh = oddsN ? oddsSum/oddsN : 2.0;
+  const R = remainingMax();
   box.innerHTML = `<div class="cbox">
-    <div class="cbhead">残り<b>${remain}</b>試合（オッズ未定の試合を含む）</div>
+    <div class="cbhead">残り<b>${R.remain}</b>試合　理論上あと最大 <b>${r1(R.total)}</b>pt</div>
+    <div class="cbdays">${R.perDay.map(d=>
+      `<span class="cbday">${d.date} ${d.round}${d.budget?`<i>持ち点${d.budget}</i>`:""} 最大 ${r1(d.max)}pt</span>`).join("")}</div>
     ${totals.slice(1).map(p=>{
       const gap = r1(topPt - p.pt);
-      const games = Math.ceil(gap / avgHigh);
+      let msg;
+      if(gap<=0){ msg = "首位"; }
+      else if(gap > R.total){ msg = `残りを全部取っても <b>${r1(gap-R.total)}</b>pt足りない`; }
+      else {
+        const pct = Math.round(gap / R.total * 100);
+        const oneDay = R.perDay.find(d=>d.max >= gap);
+        msg = `残り最大の約<b>${pct}%</b>を取れば追いつく`
+            + (oneDay ? `　<i class="cbday1">${oneDay.date}の${oneDay.round}だけでも届く計算</i>` : "");
+      }
       return `<div class="cbrow" style="--accent:${p.color}">
         <span class="cbname">${p.name}</span>
         <span class="cbgap">${gap}pt差</span>
-        <span class="cbneed">${gap<=0?"首位":
-          (games>remain ? `逆転には残り全${remain}試合でも足りない可能性` :
-           `高オッズ側を約<b>${games}</b>試合当て続ければ射程内`)}</span>
+        <span class="cbneed">${msg}</span>
       </div>`;
     }).join("")}
-    <p class="cbnote">相手が1試合も当てない前提の概算です。実際はもっと必要になります。</p>
+    <p class="cbnote">相手が1試合も当てない前提の上限値です。ポイントベット制の日は1試合に持ち点を寄せた場合の最大で計算しています${R.unknown?"（オッズ未定の試合は2.5倍と仮定）":""}。全試合的中の+1ptを含みます。</p>
   </div>`;
+}
+
+/* 残りの試合で理論上取りうる最大pt（ポイントベット制の配分を考慮） */
+function remainingMax(){
+  let total = 0, remain = 0, unknown = false;
+  const perDay = [];
+  DAYS.forEach(d=>{
+    if(d.rest) return;
+    const gs = (d.games||[]).filter(g=>!g.void && winnerOf(g)===null);
+    if(!gs.length) return;
+    remain += gs.length;
+    const budget = BET_BUDGET[gs[0].r] || 0;
+    const odds = gs.map(g=>{
+      if(g.oa!==undefined && g.ob!==undefined) return Math.max(g.oa, g.ob);
+      unknown = true; return 2.5;
+    });
+    const sum = odds.reduce((s,o)=>s+o, 0);
+    /* ベット制：全試合に1ptずつ置き、余りを最高オッズの試合に全部寄せる */
+    let day = budget ? sum + Math.max(budget - gs.length, 0) * Math.max(...odds) : sum;
+    day += 1;  /* 全試合的中ボーナス */
+    perDay.push({date:d.d, round:gs[0].r, n:gs.length, budget, max:day});
+    total += day;
+  });
+  return {total, remain, unknown, perDay};
 }
 
 function renderUpsets(){
@@ -1477,7 +1594,19 @@ function renderTimeline(){
     if(!w) return "";
     return `<span class="wbadge ${w.alert?"walert2":""}">${w.icon} ${w.hi}°/${w.lo}° 降水${w.pop}%${w.alert?'<b>順延の可能性</b>':""}</span>`;
   };
-  document.getElementById("timeline").innerHTML = DAYS.map(d=>{
+  /* 本日 → これからの日程 → 終了した日程 の順に並べ替える */
+  const nowIdx = DAYS.findIndex(d=>d.now);
+  const ordered = nowIdx < 0 ? DAYS.slice()
+    : [...DAYS.slice(nowIdx), ...DAYS.slice(0, nowIdx)];
+  let pastMark = false;
+  document.getElementById("timeline").innerHTML = ordered.map(d=>{
+    let sep = "";
+    if(nowIdx >= 0 && !pastMark && DAYS.indexOf(d) < nowIdx){
+      pastMark = true; sep = `<div class="tlsep">終了した日程</div>`;
+    }
+    return sep + dayCard(d);
+  }).join("");
+  function dayCard(d){
     if(d.rest) return `<div class="restday"><b>${d.d}<i class="dow ${dowInfo(d.d).cls}">(${dowInfo(d.d).label})</i></b>休養日${wbadge(d.d)}</div>`;
     const done = (d.games||[]).some(g=>winnerOf(g)!==null);
     const idx = played.indexOf(d);
@@ -1498,7 +1627,7 @@ function renderTimeline(){
       <div class="cards">${d.games.map((g,i)=>gameCard(g,i,done)).join("")}</div>${b}
       ${d.final?'<div class="flagnote">深紅の大優勝旗</div>':""}
     </article>`;
-  }).join("");
+  }
 }
 
 /* ---------- 出場校 戦力一覧 ---------- */
