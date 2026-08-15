@@ -1192,7 +1192,7 @@ function renderComeback(){
         <span class="cbneed">${msg}</span>
       </div>`;
     }).join("")}
-    <p class="cbnote">相手が1試合も当てない前提の上限値です。ポイントベット制の日は1試合に持ち点を寄せた場合の最大で計算しています${R.unknown?"（オッズ未定の試合は2.5倍と仮定）":""}。全試合的中の+1ptを含みます。</p>
+    <p class="cbnote">相手が1試合も当てない前提の上限値です。ポイントベット制の日は1試合に持ち点を寄せた場合の最大で計算しています${R.unknown?"（オッズ未定の試合は2.0倍と仮定）":""}。全試合的中の+1ptを含みます。</p>
   </div>`;
 }
 
@@ -1208,7 +1208,7 @@ function remainingMax(){
     const budget = BET_BUDGET[gs[0].r] || 0;
     const odds = gs.map(g=>{
       if(g.oa!==undefined && g.ob!==undefined) return Math.max(g.oa, g.ob);
-      unknown = true; return 2.5;
+      unknown = true; return 2.0;
     });
     const sum = odds.reduce((s,o)=>s+o, 0);
     /* ベット制：全試合に1ptずつ置き、余りを最高オッズの試合に全部寄せる */
