@@ -282,6 +282,10 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:10px;
 .pbudget.ok{background:rgba(201,168,90,.12);color:var(--gold)}
 .pbudget.warn{background:rgba(220,80,80,.12);color:#e08585}
 .pbudget b{font-size:13px}
+.pbetreset{margin-left:8px;padding:3px 8px;border-radius:6px;border:1px solid var(--line);background:transparent;color:inherit;font-size:11px;cursor:pointer;font-family:inherit}
+.prow.closed{opacity:.45}
+.prow.closed .pteam{cursor:default}
+.pclosed{margin-left:8px;padding:1px 6px;border-radius:5px;background:rgba(220,80,80,.18);color:#e08585;font-style:normal;font-size:10.5px;letter-spacing:.04em}
 .pbet{display:flex;align-items:center;gap:7px;margin-top:6px;padding-left:2px}
 .pbetl{font-size:10.5px;color:var(--ink-dim);letter-spacing:.04em}
 .pbetb{width:24px;height:24px;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:14px;line-height:1;cursor:pointer}
@@ -563,10 +567,11 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   <div class="entrants"><b>畑　山</b><b>根　来</b><b>今　井</b></div>
   <div class="lamp" id="lamp"></div>
   <nav class="secnav" id="secnav">
-    <a href="#nav-board">戦況</a><a href="#nav-predict">予想</a><a href="#nav-standings">順位</a><a href="#nav-personal">個人成績</a><a href="#nav-champions">優勝予想</a>
-    <a href="#nav-comeback">逆転</a><a href="#nav-upsets">大穴</a>
-    <a href="#nav-chart">推移</a><a href="#nav-schedule">日程</a><a class="hot" href="#today-anchor" id="navToday">本日</a>
-    <a href="#nav-teams">出場校</a><a id="navTrends" href="#trendsWrap" style="display:none">傾向</a><a href="#nav-rules">規定</a>
+    <a class="hot" href="#today-anchor" id="navToday">本日</a><a href="#nav-predict">予想</a><a href="#nav-schedule">日程</a>
+    <a href="#nav-board">戦況</a><a href="#nav-standings">順位</a><a href="#nav-personal">個人成績</a>
+    <a href="#nav-teams">出場校</a><a href="#nav-upsets">大穴</a><a href="#nav-comeback">逆転</a>
+    <a href="#nav-chart">推移</a><a id="navTrends" href="#trendsWrap" style="display:none">傾向</a>
+    <a href="#nav-champions">優勝予想</a><a href="#nav-rules">規定</a>
   </nav>
 </header>
 
@@ -1036,7 +1041,8 @@ function upcomingGames(){
       if(g.void) return;
       if(winnerOf(g)!==null) return;
       if(g.oa===undefined || g.ob===undefined) return;
-      out.push({id:`${d.d}-${i}`, date:d.d, no:i+1, time:g.t, round:g.r, g});
+      out.push({id:`${d.d}-${i}`, date:d.d, no:i+1, time:g.t, round:g.r, g,
+                closed: isClosed(d.d, g.t)});
     });
   });
   return out;
@@ -1151,25 +1157,27 @@ function renderPredict(){
       const btn = (side)=>{
         const name = side===0 ? it.g.a : it.g.b;
         const odd  = side===0 ? it.g.oa : it.g.ob;
-        return `<button class="pteam ${sel===side?"on":""}" data-id="${it.id}" data-side="${side}">
+        return `<button class="pteam ${sel===side?"on":""}" data-id="${it.id}" data-side="${side}" ${it.closed?"disabled":""}>
           <span class="ptn">${name}</span><b>${odd.toFixed(1)}</b></button>`;
       };
       const betRow = !budget ? "" : `<div class="pbet">
         <span class="pbetl">ベット</span>
-        <button class="pbetb" data-bet="${it.id}" data-delta="-1" ${bet<=1?"disabled":""}>−</button>
+        <button class="pbetb" data-bet="${it.id}" data-delta="-1" ${(bet<=1||it.closed)?"disabled":""}>−</button>
         <b class="pbetv">${bet}</b>
-        <button class="pbetb" data-bet="${it.id}" data-delta="1" ${left<=0?"disabled":""}>＋</button>
+        <button class="pbetb" data-bet="${it.id}" data-delta="1" ${(left<=0||it.closed)?"disabled":""}>＋</button>
         <span class="pbetx">${(sel===0||sel===1) ? `的中で +${Math.round((sel===0?it.g.oa:it.g.ob)*bet*10)/10}pt` : "未選択"}</span>
       </div>`;
-      return `<div class="prow">
-        <div class="pmeta">第${it.no}試合　${it.time}</div>
+      return `<div class="prow${it.closed?" closed":""}">
+        <div class="pmeta">第${it.no}試合　${it.time}${it.closed?'<em class="pclosed">締切</em>':""}</div>
         <div class="pbtns">${btn(0)}<span class="pvs">×</span>${btn(1)}</div>
         ${betRow}
       </div>`;
     }).join("");
+    const anyClosed = items.some(it=>it.closed);
     const budgetBar = !budget ? "" : `<div class="pbudget ${left===0&&allPicked?"ok":"warn"}">
       持ち点 <b>${budget}</b>pt　使用 <b>${used}</b>　残り <b>${left}</b>
       ${left!==0 ? "　※残りをすべて配分してください" : (allPicked ? "　配分完了" : "　※全試合の予想を選んでください")}
+      ${anyClosed ? "" : `<button class="pbetreset" data-reset="${date}">均等配分に戻す</button>`}
     </div>`;
     return `<div class="pday"><div class="pdate">${date}<i class="dow ${dowInfo(date).cls}">(${dowInfo(date).label})</i>${budget?`<em class="pbadge ${round==="準決勝"?"sf":"qf"}">${round}・ポイントベット制</em>`:""}</div>${budgetBar}${rows}</div>`;
   }).join("");
@@ -1207,9 +1215,38 @@ function bindPredict(){
   }));
   const clear = document.getElementById("predClear");
   if(clear) clear.addEventListener("click",()=>{ PRED.picks={}; PRED.bets={}; savePred(); renderPredict(); });
+  document.querySelectorAll(".pbetreset").forEach(b=>b.addEventListener("click",()=>{
+    const date = b.dataset.reset;
+    const items = upcomingGames().filter(it=>it.date===date);
+    const budget = BET_BUDGET[(items[0]||{}).round] || 0;
+    if(!budget || !items.length) return;
+    PRED.bets = PRED.bets || {};
+    const base = Math.floor(budget / items.length);
+    let rest = budget - base*items.length;
+    items.forEach(it=>{ PRED.bets[it.id] = base + (rest-- > 0 ? 1 : 0); });
+    savePred(); renderPredict();
+  }));
   const copy = document.getElementById("predCopy");
   if(copy) copy.addEventListener("click",()=>{
     const picks = PRED.picks||{}, bets = PRED.bets||{}, lines = [], byDate = {};
+    /* ポイントベット制の日は、全試合選択済み＆持ち点を使い切っていないとコピーさせない */
+    const byDay = {};
+    upcomingGames().forEach(it=>{ (byDay[it.date] = byDay[it.date]||[]).push(it); });
+    for(const date in byDay){
+      const items = byDay[date];
+      const budget = BET_BUDGET[items[0].round] || 0;
+      if(!budget) continue;
+      const unpicked = items.filter(it=>!(picks[it.id]===0 || picks[it.id]===1)).length;
+      const used = items.reduce((s,it)=>s + (bets[it.id]===undefined?1:bets[it.id]), 0);
+      let msg = "";
+      if(unpicked) msg = `${date} は全${items.length}試合の選択が必要です`;
+      else if(used !== budget) msg = `${date} の持ち点が${used>budget?"超過":"残り"}${Math.abs(budget-used)}ptです`;
+      if(msg){
+        copy.textContent = msg;
+        setTimeout(()=>copy.textContent="予想をコピー", 2600);
+        return;
+      }
+    }
     upcomingGames().forEach(it=>{
       const sel = picks[it.id]; if(sel!==0 && sel!==1) return;
       const budget = BET_BUDGET[it.round] || 0;
@@ -1325,6 +1362,18 @@ function dowInfo(dateStr){
   const holiday = HOLIDAYS.includes(dateStr);
   const cls = (w===0 || holiday) ? "sun" : (w===6 ? "sat" : "");
   return { label: DOW[w], cls, holiday };
+}
+
+/* 試合開始時刻を Date にする。開始済みなら予想は締め切る */
+function gameStart(dateStr, timeStr){
+  const [m,d] = String(dateStr).split("/").map(Number);
+  const [hh,mm] = String(timeStr||"0:00").split(":").map(Number);
+  if(!m || !d || Number.isNaN(hh)) return null;
+  return new Date(2026, m-1, d, hh, mm||0, 0);
+}
+function isClosed(dateStr, timeStr){
+  const t = gameStart(dateStr, timeStr);
+  return t ? (Date.now() >= t.getTime()) : false;
 }
 
 
