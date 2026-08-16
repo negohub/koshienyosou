@@ -339,6 +339,8 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:11px;
 .rtseq i{font-style:normal;margin-right:1px}
 .rtseq .o{color:var(--gold)}
 .rtseq .x{color:rgba(243,239,226,.28)}
+.rt td.gd{color:var(--gold);font-weight:600}
+.rt td.bd{color:#e08585;font-weight:600}
 .stbox{margin-top:12px;padding:11px 12px;border:1px solid var(--line);border-radius:10px}
 .sthead{font-size:12px;letter-spacing:.08em;color:var(--ink-dim);margin-bottom:7px}
 .stline{font-size:12.5px;line-height:1.75;font-family:var(--num)}
@@ -893,15 +895,15 @@ const FORM = {
  "青森山田":["初戦：遊学館に6-5で辛勝","初戦は終盤猛追されるも、底力で逃げ切る。"],
  "東日本国際大昌平":["3回戦：有明に1-4で敗退","照沼が7回1/3を2失点と好投したが、1点リードの8回に4点を失って逆転負け。初出場での8強入りはならなかった。"],
  "大分商":["初戦：日本文理に6-4で逆転勝利","中盤の集中打で見事な逆転。粘り強さが光る。"],
- "英明":["2回戦：大分商に6-1で勝利","7安打で6得点。大分商を1点に抑え、3回戦へ駒を進めた。"],
- "花巻東":["2回戦：岡山学芸館に4-1で勝利","14安打・無失策の快勝。チーム7盗塁と機動力が冴え、赤間は本盗を含む4盗塁を決めた。"],
+ "英明":["3回戦：花巻東に0-4で敗退","冨岡が8回109球を投げて7安打4失点。打線は6安打を放ったが得点できず、2失策も重なった。"],
+ "花巻東":["3回戦：英明に4-0で勝利","赤間が6回、萬谷が3回を投げて6安打完封リレー。2回から小刻みに加点し、無失策の守りで3年ぶりの8強。"],
  "岡山学芸館":["初戦：鳥取城北に7-3で勝利","しぶとい打撃と堅実な守備で激戦を勝ち抜いた。"],
  "鳴門渦潮":["初戦：八王子実践に2-1でサヨナラ勝ち","延長タイブレークの死闘を制し、18年ぶりの初戦突破。"],
  "霞ヶ浦":["2回戦：鳴門渦潮に5-1で勝利","2回に野口の適時打で先制、3回に菊地の3点三塁打で突き放す。小林→稲山の継投で守り切り3回戦進出。"]
 };
 
 const DAYS = [
- {d:"8/5", nth:"第1日", games:[
+ {d:"8/5", nth:"第1日", bonus:{"根来":1,"今井":1,"畑山":1}, games:[
    {t:"17:30", r:"1回戦", a:"札幌日大", b:"仙台育英", oa:3.5, ob:1.2, s:[1,3], hits:["畑山","根来","今井"]}
  ]},
  {d:"8/6", nth:"第2日", games:[
@@ -964,7 +966,7 @@ const DAYS = [
  {d:"8/16", nth:"第12日", now:true, games:[
    {t:"8:00", r:"3回戦", a:"佐野日大", b:"健大高崎", oa:1.9, ob:2.1, s:[1,4], hits:["根来","今井"], tag:"無失点のエースを2回に攻略"},
    {t:"10:30", r:"3回戦", a:"有明", b:"東日本国際大昌平", oa:2.1, ob:1.9, s:[4,1], hits:["根来"], tag:"8回に一気の逆転劇"},
-   {t:"13:00", r:"3回戦", a:"英明", b:"花巻東", oa:2.6, ob:1.6, tag:"14安打7盗塁の花巻東に挑む"},
+   {t:"13:00", r:"3回戦", a:"英明", b:"花巻東", oa:2.6, ob:1.6, s:[0,4], hits:["根来","今井"], tag:"2投手の完封リレー"},
    {t:"15:30", r:"3回戦", a:"霞ヶ浦", b:"横浜", oa:3.6, ob:1.4, tag:"優勝候補に挑む"}
  ]},
  {d:"8/17", rest:true},
@@ -1088,9 +1090,18 @@ function renderStandings(){
 function renderRankTable(){
   const box = document.getElementById("ranktable");
   if(!box) return;
-  const rows = PLAYERS.map(p=>({name:p.name, color:p.color, pt:0, hit:0, miss:0, seq:[]}));
+  const rows = PLAYERS.map(p=>({name:p.name, color:p.color, pt:0, hit:0, miss:0, perfect:0, zero:0, seq:[]}));
   const by = {}; rows.forEach(r=>by[r.name]=r);
   DAYS.forEach(d=>{
+    /* その日の全試合が終わっている日だけ、全的中／全外しを数える */
+    const live = (d.games||[]).filter(g=>!g.void);
+    if(live.length && live.every(g=>g.s)){
+      rows.forEach(r=>{
+        const n = live.filter(g=>(g.hits||[]).includes(r.name)).length;
+        if(n === live.length) r.perfect++;
+        else if(n === 0) r.zero++;
+      });
+    }
     (d.games||[]).forEach(g=>{
       if(!g.s || g.void) return;
       const odd = winnerOf(g)===0 ? g.oa : g.ob;
@@ -1107,7 +1118,7 @@ function renderRankTable(){
   rows.sort((a,b)=>b.pt-a.pt);
   const top = rows[0] ? rows[0].pt : 0;
   box.innerHTML = `<table class="rt"><thead><tr>
-      <th>順</th><th class="l">名前</th><th>pt</th><th>差</th><th>的中</th><th>不的中</th><th>率</th><th class="l">直近5</th>
+      <th>順</th><th class="l">名前</th><th>pt</th><th>差</th><th>的中</th><th>勝率</th><th>全的中</th><th>全外し</th><th class="l">直近5</th>
     </tr></thead><tbody>${rows.map((r,i)=>{
       const n = r.hit + r.miss;
       const pct = n ? (r.hit/n) : 0;
@@ -1118,8 +1129,9 @@ function renderRankTable(){
         <td class="rtpt">${r1(r.pt)}</td>
         <td>${i===0 ? "—" : gap}</td>
         <td>${r.hit}</td>
-        <td>${r.miss}</td>
         <td>${pct.toFixed(3).replace(/^0/,"")}</td>
+        <td class="${r.perfect?"gd":""}">${r.perfect}</td>
+        <td class="${r.zero?"bd":""}">${r.zero}</td>
         <td class="l rtseq">${r.seq.slice(-5).map(h=>`<i class="${h?"o":"x"}">${h?"○":"✕"}</i>`).join("")}</td>
       </tr>`;
     }).join("")}</tbody></table>`;
@@ -1608,7 +1620,7 @@ const KSTAT = {
  "有明":[[32,6,1],[35,10,1],[31,7,0]],
  "東日本国際大昌平":[[27,2,1],[33,8,2],[28,5,1]],
  "英明":[[34,6,2],[33,7,1]],
- "花巻東":[[30,8,0],[34,14,0]],
+ "花巻東":[[30,8,0],[34,14,0],[26,7,0]],
  "岡山学芸館":[[36,9,0]],
  "鳴門渦潮":[[33,6,0]],
  "霞ヶ浦":[[34,7,2],[28,8,2]],
