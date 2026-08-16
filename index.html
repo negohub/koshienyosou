@@ -101,8 +101,6 @@ section{margin-top:76px}
 .hero h1::before{left:-32px} .hero h1::after{right:-32px}
 .hero .sub{font-family:var(--min);font-weight:500;font-size:clamp(12px,3vw,15px);letter-spacing:.32em;
   margin-top:20px;text-indent:.32em;color:var(--ink-dim)}
-.sublink{color:var(--clay);text-decoration:none;border-bottom:1px solid rgba(180,98,44,.5);padding-bottom:1px}
-.sublink:hover,.sublink:focus-visible{color:var(--ink)}
 .entrants{display:flex;justify-content:center;gap:9px;margin-top:26px;flex-wrap:wrap}
 .entrants b{
   font-family:var(--min);font-weight:700;font-size:15px;letter-spacing:.16em;text-indent:.16em;
@@ -110,6 +108,12 @@ section{margin-top:76px}
 }
 .lamp{display:inline-flex;align-items:center;gap:9px;margin-top:24px;font-family:var(--min);
   font-size:12px;letter-spacing:.2em;color:var(--ink-dim);border:1px solid var(--line);padding:5px 16px}
+.sublink{color:var(--clay);text-decoration:none;border-bottom:1px solid rgba(180,98,44,.5);padding-bottom:1px}
+.sublink:hover,.sublink:focus-visible{color:var(--ink)}
+.lampwrap{display:block}
+.lamp{text-decoration:none;color:inherit;cursor:pointer;transition:border-color .2s,color .2s}
+.lamp:hover,.lamp:focus-visible{color:var(--gold);border-color:var(--gold)}
+.lampgo{font-family:var(--gothic);font-size:10px;margin-left:8px;opacity:.55}
 .lamp i{width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 10px var(--red);animation:beat 2.4s ease-in-out infinite}
 .secnav{
   display:flex;flex-wrap:wrap;justify-content:center;gap:6px 4px;margin-top:22px;
@@ -354,13 +358,9 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:11px;
   font-size:10.5px;color:rgba(243,239,226,.4);margin-top:2px}
 .sgt2 td.sgru{font-weight:400;color:rgba(243,239,226,.62)}
 .sgsc{font-family:var(--num);color:var(--gold)!important;font-size:13.5px}
-.sgnone{font-family:var(--num);font-size:12.5px;color:rgba(243,239,226,.32)}
-.sgv{display:inline-block;font-style:normal;font-family:var(--gothic);font-size:10px;
-  letter-spacing:.06em;background:var(--gold);color:#1b1006;padding:0 5px;border-radius:3px;
-  margin-left:6px;vertical-align:2px;white-space:nowrap;font-weight:400}
-.sge{display:inline-block;font-style:normal;font-family:var(--gothic);font-size:10px;
-  letter-spacing:.06em;border:1px solid var(--line);color:var(--ink-dim);padding:0 5px;
-  border-radius:3px;margin-left:6px;vertical-align:2px;white-space:nowrap;font-weight:400}
+.sgnone{font-family:var(--num);font-size:12.5px;color:rgba(243,239,226,.28)}
+.sgoff .sgsong{font-weight:400;color:var(--ink-dim)}
+.sgoff .d{color:rgba(243,239,226,.45)}
 .rt td.bd{color:#e08585;font-weight:600}
 .stbox{margin-top:12px;padding:11px 12px;border:1px solid var(--line);border-radius:10px}
 .sthead{font-size:12px;letter-spacing:.08em;color:var(--ink-dim);margin-bottom:7px}
@@ -658,10 +658,10 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   <h1><span class="t1">全国高校野球</span><span class="t2">勝敗予想選手権大会</span></h1>
   <div class="sub">阪神甲子園球場　<a class="sublink" href="#nav-schedule">大会日程</a></div>
   <div class="entrants"><b>畑　山</b><b>根　来</b><b>今　井</b></div>
-  <div class="lamp" id="lamp"></div>
+  <div class="lampwrap"><a class="lamp" id="lamp" href="#today-anchor"></a></div>
   <nav class="secnav" id="secnav">
     <a href="#nav-board">戦況</a><a href="#nav-standings">順位</a><a href="#nav-personal">個人成績</a>
-    <a class="hot" href="#today-anchor" id="navToday">本日</a><a href="#nav-predict">予想</a><a href="#nav-schedule">日程</a>
+    <a href="#nav-predict">予想</a><a href="#nav-schedule">日程</a>
     <a href="#nav-teams">出場校</a><a href="#nav-upsets">大穴</a><a href="#nav-comeback">逆転</a>
     <a href="#nav-chart">推移</a><a id="navTrends" href="#trendsWrap" style="display:none">傾向</a>
     <a href="#nav-champions">優勝予想</a><a href="#nav-songs">主題歌</a><a href="#nav-rules">規定</a>
@@ -1630,30 +1630,21 @@ function ytLink(title, artist){
 function renderSongs(){
   const box = document.getElementById("songs");
   if(!box) return;
-  const entered = new Set(Object.keys(T));
-  const alive = new Set();
-  DAYS.forEach(d=>(d.games||[]).forEach(g=>{
-    if(!g.s || g.void) return;
-    const w = winnerOf(g);
-    alive.add(w===0 ? g.a : g.b);
-    alive.delete(w===0 ? g.b : g.a);
-  }));
-  const mark = n => alive.has(n) ? '<em class="sgv">勝ち残り</em>'
-                  : entered.has(n) ? '<em class="sge">今大会</em>' : "";
   box.innerHTML = `<div class="sgwrap"><table class="tt sgt2"><thead><tr>
       <th>年</th><th>テーマソング</th><th>優勝</th><th>スコア</th><th>準優勝</th>
     </tr></thead><tbody>`
     + SONGS.slice().reverse().map(row=>{
       const [y, title, artist, ch, chp, ru, rup, sc] = row;
-      const cur = y === 2026;
-      if(!title) return `<tr class="ko"><td class="d">${y}</td>
-        <td colspan="4" class="sgnone">大会中止（新型コロナウイルスの影響）</td></tr>`;
+      if(!title) return `<tr class="sgoff">
+        <td class="d">${y}</td>
+        <td class="n sgsong">大会中止<i class="sgar">新型コロナウイルスの影響</i></td>
+        <td colspan="3" class="sgnone">—</td></tr>`;
       const fin = ch
-        ? `<td class="n">${ch}<i class="sgp">${chp}</i>${mark(ch)}</td>
+        ? `<td class="n">${ch}<i class="sgp">${chp}</i></td>
            <td class="d sgsc">${sc}</td>
-           <td class="n sgru">${ru}<i class="sgp">${rup}</i>${mark(ru)}</td>`
+           <td class="n sgru">${ru}<i class="sgp">${rup}</i></td>`
         : `<td colspan="3" class="sgnone">開催中</td>`;
-      return `<tr class="${cur?"open":""}">
+      return `<tr class="${y===2026?"open":""}">
         <td class="d">${y}</td>
         <td class="n sgsong">${ytLink(title, artist)}<i class="sgar">${artist}</i></td>
         ${fin}
@@ -2235,7 +2226,8 @@ drawIvy(document.getElementById("ivyR"), 77315);
   const el = document.getElementById("lamp");
   if(!cur || !el) return;
   const [m,dd] = cur.d.split("/").map(Number);
-  el.innerHTML = `<i></i>${cur.nth}　${m}月${dd}日　開催中`;
+  const live = (cur.games||[]).some(g=>!g.void && !g.s);
+  el.innerHTML = `<i></i>${cur.nth}　${m}月${dd}日　${live?"開催中":"本日の日程"}<span class="lampgo">▶</span>`;
 })();
 
 </script>
