@@ -340,6 +340,27 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:11px;
 .rtseq .o{color:var(--gold)}
 .rtseq .x{color:rgba(243,239,226,.28)}
 .rt td.gd{color:var(--gold);font-weight:600}
+.sgwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.sglink{color:inherit;text-decoration:none;border-bottom:1px solid rgba(243,239,226,.22)}
+.sglink:hover{color:var(--clay);border-bottom-color:var(--clay)}
+.ytm{font-family:var(--gothic);font-size:9.5px;color:var(--crimson);margin-left:6px;vertical-align:1.5px}
+.sglink:hover .ytm{color:var(--clay)}
+.sgt2{min-width:600px}
+.sgt2 td.d{font-family:var(--num);font-size:12.5px;color:var(--ink-dim);text-align:left;white-space:nowrap}
+.sgsong{font-family:var(--min);font-weight:700;font-size:14px;letter-spacing:.02em}
+.sgar{display:block;font-style:normal;font-family:var(--gothic);font-weight:400;
+  font-size:11px;color:var(--ink-dim);letter-spacing:.02em;margin-top:2px;white-space:normal}
+.sgp{display:block;font-style:normal;font-family:var(--gothic);font-weight:400;
+  font-size:10.5px;color:rgba(243,239,226,.4);margin-top:2px}
+.sgt2 td.sgru{font-weight:400;color:rgba(243,239,226,.62)}
+.sgsc{font-family:var(--num);color:var(--gold)!important;font-size:13.5px}
+.sgnone{font-family:var(--num);font-size:12.5px;color:rgba(243,239,226,.32)}
+.sgv{display:inline-block;font-style:normal;font-family:var(--gothic);font-size:10px;
+  letter-spacing:.06em;background:var(--gold);color:#1b1006;padding:0 5px;border-radius:3px;
+  margin-left:6px;vertical-align:2px;white-space:nowrap;font-weight:400}
+.sge{display:inline-block;font-style:normal;font-family:var(--gothic);font-size:10px;
+  letter-spacing:.06em;border:1px solid var(--line);color:var(--ink-dim);padding:0 5px;
+  border-radius:3px;margin-left:6px;vertical-align:2px;white-space:nowrap;font-weight:400}
 .rt td.bd{color:#e08585;font-weight:600}
 .stbox{margin-top:12px;padding:11px 12px;border:1px solid var(--line);border-radius:10px}
 .sthead{font-size:12px;letter-spacing:.08em;color:var(--ink-dim);margin-bottom:7px}
@@ -643,7 +664,7 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
     <a class="hot" href="#today-anchor" id="navToday">本日</a><a href="#nav-predict">予想</a><a href="#nav-schedule">日程</a>
     <a href="#nav-teams">出場校</a><a href="#nav-upsets">大穴</a><a href="#nav-comeback">逆転</a>
     <a href="#nav-chart">推移</a><a id="navTrends" href="#trendsWrap" style="display:none">傾向</a>
-    <a href="#nav-champions">優勝予想</a><a href="#nav-rules">規定</a>
+    <a href="#nav-champions">優勝予想</a><a href="#nav-songs">主題歌</a><a href="#nav-rules">規定</a>
   </nav>
 </header>
 
@@ -739,6 +760,11 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
     <div class="head"><h2>優勝予想</h2><em>Champion Pick</em></div>
     <div class="champions" id="champions"></div>
     <p class="fine" style="margin:9px 2px 0;font-size:11.5px;color:var(--ink-dim)">的中者はオッズ×100円を、外した2人それぞれから受け取る</p>
+  </section>
+  <section class="reveal" id="nav-songs">
+    <div class="head"><h2>テーマソング</h2><em>Theme Songs</em></div>
+    <p class="hint">OPとEDが同じ曲に統一された2009年以降の「熱闘甲子園」テーマソング。</p>
+    <div id="songs"></div>
   </section>
   <section class="reveal" id="nav-rules">
     <div class="head"><h2>大会規定</h2><em>Rules</em></div>
@@ -1082,6 +1108,7 @@ function renderStandings(){
       <div class="pay">${last?`現時点の精算 <b>¥${(gap*RATE).toLocaleString()}</b> → ${totals[0].name}`:"&nbsp;"}</div>
     </div>`;
   }).join("");
+  renderSongs();
   renderRankTable();
   renderSettlement();
 }
@@ -1569,6 +1596,70 @@ function pickTag(name){
 /* 曜日（土=青／日・祝=赤） */
 const DOW = ["日","月","火","水","木","金","土"];
 const HOLIDAYS = ["8/11"]; // 山の日
+/* 熱闘甲子園 歴代テーマソング（2009年のOP/ED統一以降）
+   [年, 曲名, アーティスト] ／2020年は大会中止で楽曲なし */
+/* [年, 曲名, アーティスト, 優勝校, 都道府県, 準優勝校, 都道府県, 決勝スコア]
+   スコアは出典で確認できたものだけ。未確認は null */
+const SONGS = [
+  [2009, "Halation", "秦基博", "中京大中京", "愛知", "日本文理", "新潟", "10-9"],
+  [2010, "あとひとつ", "FUNKY MONKEY BABYS", "興南", "沖縄", "東海大相模", "神奈川", "13-1"],
+  [2011, "ずっとここから", "JURIAN BEAT CRISIS", "日大三", "西東京", "光星学院", "青森", "11-0"],
+  [2012, "pride", "GReeeeN", "大阪桐蔭", "大阪", "光星学院", "青森", "3-0"],
+  [2013, "ダイヤモンド", "コブクロ", "前橋育英", "群馬", "延岡学園", "宮崎", "4-3"],
+  [2014, "オモイダマ", "関ジャニ∞", "大阪桐蔭", "大阪", "三重", "三重", "4-3"],
+  [2015, "On Your Side", "Superfly", "東海大相模", "神奈川", "仙台育英", "宮城", "10-6"],
+  [2016, "光と影の日々", "AKB48", "作新学院", "栃木", "北海", "南北海道", "7-1"],
+  [2017, "虹", "高橋優", "花咲徳栄", "埼玉", "広陵", "広島", "14-4"],
+  [2018, "夏疾風", "嵐", "大阪桐蔭", "北大阪", "金足農", "秋田", "13-2"],
+  [2019, "宿命", "Official髭男dism", "履正社", "大阪", "星稜", "石川", "5-3"],
+  [2020, null, "大会中止のため楽曲なし", null, null, null, null, null],
+  [2021, "夢わたし", "なにわ男子", "智辯和歌山", "和歌山", "智弁学園", "奈良", "9-2"],
+  [2022, "栄光の扉", "平井大", "仙台育英", "宮城", "下関国際", "山口", "8-1"],
+  [2023, "フォトグラフ", "EXILE ATSUSHI feat. 東京スカパラダイスオーケストラ ホーンセクション", "慶応", "神奈川", "仙台育英", "宮城", "8-2"],
+  [2024, "ずっと好きだから", "ねぐせ。", "京都国際", "京都", "関東第一", "東東京", "2-1"],
+  [2025, "ノンフィクションズ", "Da-iCE", "沖縄尚学", "沖縄", "日大三", "西東京", "3-1"],
+  [2026, "かげろう", "Vaundy", null, null, null, null, null]
+];
+/* 曲名＋アーティストでYouTube検索へ。直リンクだとリンク切れするため検索で逃がす */
+function ytLink(title, artist){
+  const who = String(artist).split(" feat.")[0];
+  const q = encodeURIComponent(`${title} ${who} MV`);
+  return `<a class="sglink" target="_blank" rel="noopener"
+    href="https://www.youtube.com/results?search_query=${q}">${title}<span class="ytm">▶</span></a>`;
+}
+function renderSongs(){
+  const box = document.getElementById("songs");
+  if(!box) return;
+  const entered = new Set(Object.keys(T));
+  const alive = new Set();
+  DAYS.forEach(d=>(d.games||[]).forEach(g=>{
+    if(!g.s || g.void) return;
+    const w = winnerOf(g);
+    alive.add(w===0 ? g.a : g.b);
+    alive.delete(w===0 ? g.b : g.a);
+  }));
+  const mark = n => alive.has(n) ? '<em class="sgv">勝ち残り</em>'
+                  : entered.has(n) ? '<em class="sge">今大会</em>' : "";
+  box.innerHTML = `<div class="sgwrap"><table class="tt sgt2"><thead><tr>
+      <th>年</th><th>テーマソング</th><th>優勝</th><th>スコア</th><th>準優勝</th>
+    </tr></thead><tbody>`
+    + SONGS.slice().reverse().map(row=>{
+      const [y, title, artist, ch, chp, ru, rup, sc] = row;
+      const cur = y === 2026;
+      if(!title) return `<tr class="ko"><td class="d">${y}</td>
+        <td colspan="4" class="sgnone">大会中止（新型コロナウイルスの影響）</td></tr>`;
+      const fin = ch
+        ? `<td class="n">${ch}<i class="sgp">${chp}</i>${mark(ch)}</td>
+           <td class="d sgsc">${sc}</td>
+           <td class="n sgru">${ru}<i class="sgp">${rup}</i>${mark(ru)}</td>`
+        : `<td colspan="3" class="sgnone">開催中</td>`;
+      return `<tr class="${cur?"open":""}">
+        <td class="d">${y}</td>
+        <td class="n sgsong">${ytLink(title, artist)}<i class="sgar">${artist}</i></td>
+        ${fin}
+      </tr>`;
+    }).join("") + "</tbody></table></div>";
+}
 /* 説明文を「。」ごとに1行にする（文の途中では折り返すが、文はまたがない） */
 function sent(t){
   if(t===undefined || t===null) return "";
