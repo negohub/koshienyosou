@@ -327,6 +327,18 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:11px;
 .cbday{font-size:12px;font-family:var(--num);padding:3px 8px;border-radius:6px;border:1px solid var(--line);color:var(--ink-dim)}
 .cbday i{font-style:normal;color:var(--gold);margin-left:4px}
 .cbday1{font-style:normal;color:var(--gold);font-size:12px}
+.rt{width:100%;border-collapse:collapse;margin-top:12px;font-family:var(--num);font-size:12.5px}
+.rt th{font-family:var(--min);font-size:11.5px;letter-spacing:.06em;color:var(--ink-dim);
+  font-weight:400;padding:6px 4px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+.rt td{padding:9px 4px;text-align:center;border-bottom:1px solid rgba(243,239,226,.07);white-space:nowrap}
+.rt th.l,.rt td.l{text-align:left}
+.rt tr.lead .rtname,.rt tr.lead .rtpt{color:var(--gold)}
+.rtno{color:var(--ink-dim)}
+.rtname{font-family:var(--min);font-size:13px;border-left:3px solid var(--accent);padding-left:8px}
+.rtpt{font-size:15px;font-weight:600}
+.rtseq i{font-style:normal;margin-right:1px}
+.rtseq .o{color:var(--gold)}
+.rtseq .x{color:rgba(243,239,226,.28)}
 .stbox{margin-top:12px;padding:11px 12px;border:1px solid var(--line);border-radius:10px}
 .sthead{font-size:12px;letter-spacing:.08em;color:var(--ink-dim);margin-bottom:7px}
 .stline{font-size:12.5px;line-height:1.75;font-family:var(--num)}
@@ -677,6 +689,7 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   <section class="reveal" id="nav-standings">
     <div class="head"><h2>順位</h2><em>Standings</em></div>
     <div class="standings" id="standings"></div>
+    <div id="ranktable"></div>
     <div id="settlement"></div>
     <p class="fine" style="margin:9px 2px 0;font-size:11.5px;color:var(--ink-dim)">首位との点差と、現時点で3位が支払う精算額の目安を表示</p>
   </section>
@@ -1067,7 +1080,49 @@ function renderStandings(){
       <div class="pay">${last?`現時点の精算 <b>¥${(gap*RATE).toLocaleString()}</b> → ${totals[0].name}`:"&nbsp;"}</div>
     </div>`;
   }).join("");
+  renderRankTable();
   renderSettlement();
+}
+
+/* ---------- 順位表（プロ野球の順位表と同じ形） ---------- */
+function renderRankTable(){
+  const box = document.getElementById("ranktable");
+  if(!box) return;
+  const rows = PLAYERS.map(p=>({name:p.name, color:p.color, pt:0, hit:0, miss:0, seq:[]}));
+  const by = {}; rows.forEach(r=>by[r.name]=r);
+  DAYS.forEach(d=>{
+    (d.games||[]).forEach(g=>{
+      if(!g.s || g.void) return;
+      const odd = winnerOf(g)===0 ? g.oa : g.ob;
+      const budget = BET_BUDGET[g.r] || 0;
+      rows.forEach(r=>{
+        const hit = (g.hits||[]).includes(r.name);
+        const bet = (budget && g.bets && g.bets[r.name]) ? g.bets[r.name] : 1;
+        if(hit){ r.pt += odd * bet; r.hit++; } else r.miss++;
+        r.seq.push(hit);
+      });
+    });
+    if(d.bonus) for(const k in d.bonus) if(by[k]) by[k].pt += d.bonus[k];
+  });
+  rows.sort((a,b)=>b.pt-a.pt);
+  const top = rows[0] ? rows[0].pt : 0;
+  box.innerHTML = `<table class="rt"><thead><tr>
+      <th>順</th><th class="l">名前</th><th>pt</th><th>差</th><th>的中</th><th>不的中</th><th>率</th><th class="l">直近5</th>
+    </tr></thead><tbody>${rows.map((r,i)=>{
+      const n = r.hit + r.miss;
+      const pct = n ? (r.hit/n) : 0;
+      const gap = r1(top - r.pt);
+      return `<tr class="${i===0?"lead":""}" style="--accent:${r.color}">
+        <td class="rtno">${i+1}</td>
+        <td class="l rtname">${r.name}</td>
+        <td class="rtpt">${r1(r.pt)}</td>
+        <td>${i===0 ? "—" : gap}</td>
+        <td>${r.hit}</td>
+        <td>${r.miss}</td>
+        <td>${pct.toFixed(3).replace(/^0/,"")}</td>
+        <td class="l rtseq">${r.seq.slice(-5).map(h=>`<i class="${h?"o":"x"}">${h?"○":"✕"}</i>`).join("")}</td>
+      </tr>`;
+    }).join("")}</tbody></table>`;
 }
 
 /* ---------- 精算（点差＋優勝予想の配当） ---------- */
