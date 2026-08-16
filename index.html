@@ -625,8 +625,8 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   <div class="entrants"><b>畑　山</b><b>根　来</b><b>今　井</b></div>
   <div class="lamp" id="lamp"></div>
   <nav class="secnav" id="secnav">
-    <a href="#nav-board">戦況</a><a class="hot" href="#today-anchor" id="navToday">本日</a><a href="#nav-predict">予想</a>
-    <a href="#nav-schedule">日程</a><a href="#nav-standings">順位</a><a href="#nav-personal">個人成績</a>
+    <a href="#nav-board">戦況</a><a href="#nav-standings">順位</a><a href="#nav-personal">個人成績</a>
+    <a class="hot" href="#today-anchor" id="navToday">本日</a><a href="#nav-predict">予想</a><a href="#nav-schedule">日程</a>
     <a href="#nav-teams">出場校</a><a href="#nav-upsets">大穴</a><a href="#nav-comeback">逆転</a>
     <a href="#nav-chart">推移</a><a id="navTrends" href="#trendsWrap" style="display:none">傾向</a>
     <a href="#nav-champions">優勝予想</a><a href="#nav-rules">規定</a>
@@ -674,15 +674,6 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
     </div>
     <p class="fine" style="margin:9px 2px 0;font-size:11.5px;color:var(--ink-dim)">3人の日別得点を、消化した試合の分だけ手動式スコアボードの形で表示</p>
   </section>
-  <section class="reveal" id="nav-predict">
-    <div class="head"><h2>予想入力</h2><em>Your Pick</em></div>
-    <p class="hint"><span class="sn">オッズ＝的中時の倍率。</span><span class="sn">2.1の側を当てれば +2.1pt。</span><span class="sn">数字が大きいほど不利と見られている側です。</span></p>
-    <div id="predict"></div>
-  </section>
-  <section class="reveal" id="nav-schedule">
-    <div class="head"><h2>大会日程</h2><em>8/5 → 8/22</em></div>
-    <div id="timeline"></div>
-  </section>
   <section class="reveal" id="nav-standings">
     <div class="head"><h2>順位</h2><em>Standings</em></div>
     <div class="standings" id="standings"></div>
@@ -693,6 +684,15 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
     <div class="head"><h2>個人成績</h2><em>Hit Rate</em></div>
     <div class="personal" id="personal"></div>
     <p class="fine" style="margin:9px 2px 0;font-size:11.5px;color:var(--ink-dim)"><span class="sn">これまでの全試合を通算した、各自の予想の勝敗と的中率。</span><span class="sn">○✕は開幕からの全試合の流れ、現在の連勝・連敗も表示</span></p>
+  </section>
+  <section class="reveal" id="nav-predict">
+    <div class="head"><h2>予想入力</h2><em>Your Pick</em></div>
+    <p class="hint"><span class="sn">オッズ＝的中時の倍率。</span><span class="sn">2.1の側を当てれば +2.1pt。</span><span class="sn">数字が大きいほど不利と見られている側です。</span></p>
+    <div id="predict"></div>
+  </section>
+  <section class="reveal" id="nav-schedule">
+    <div class="head"><h2>大会日程</h2><em>8/5 → 8/22</em></div>
+    <div id="timeline"></div>
   </section>
   <section class="reveal" id="nav-teams">
     <div class="head"><h2>出場校 戦力一覧</h2><em id="teamCount"></em></div>
