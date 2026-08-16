@@ -501,6 +501,10 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:11px;
 .gh .no{white-space:nowrap;font-family:var(--min)}
 .gh .tm{white-space:nowrap;font-family:var(--num);letter-spacing:.06em}
 .g.qf .gh,.g.sf .gh,.g.gf .gh{padding-right:92px}
+.vlink{display:flex;align-items:center;justify-content:center;gap:9px;padding:11px 13px;font-family:var(--gothic);font-size:12.5px;font-weight:700;letter-spacing:.1em;color:var(--gold);text-decoration:none;border-top:1px solid rgba(229,185,60,.28);background:rgba(229,185,60,.09)}
+.vlink:hover,.vlink:focus-visible{background:rgba(229,185,60,.2);color:var(--ink)}
+.vgo{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;border-radius:50%;background:var(--crimson);color:#fff;font-size:8.5px;padding-left:2px;flex:none}
+.vlink:hover .vgo{background:var(--gold);color:#1b1006}
 .gtag{font-family:var(--min);font-size:11.5px;letter-spacing:.1em;line-height:1.6;color:#fff;background:var(--crimson);padding:4px 13px}
 .row{display:flex;align-items:center;gap:11px;padding:11px 13px}
 .row + .row{border-top:1px solid rgba(243,239,226,.09)}
@@ -1620,6 +1624,30 @@ const SONGS = [
   [2025, "ノンフィクションズ", "Da-iCE", "沖縄尚学", "沖縄", "日大三", "西東京", "3-1"],
   [2026, "かげろう", "Vaundy", null, null, null, null, null]
 ];
+/* バーチャル高校野球（公式）のハイライト動画ページ
+   キーは「日付-試合番号(0始まり)」。実際にURLを確認できた試合だけ載せる */
+const VIDEO = {
+  "8/5-0":"2021048480",
+  "8/6-0":"2021048481", "8/6-1":"2021048482",
+  "8/7-0":"2021048483", "8/7-1":"2021048484", "8/7-2":"2021048485", "8/7-3":"2021048486",
+  "8/8-0":"2021048487", "8/8-1":"2021048488", "8/8-2":"2021048489", "8/8-3":"2021048490",
+  "8/9-0":"2021048491", "8/9-1":"2021048492", "8/9-2":"2021048493", "8/9-3":"2021048494",
+  "8/10-0":"2021048495", "8/10-1":"2021048496", "8/10-2":"2021048497", "8/10-3":"2021048498",
+  "8/11-0":"2021048499", "8/11-1":"2021048500", "8/11-2":"2021048501", "8/11-3":"2021048502",
+  "8/12-0":"2021048503", "8/12-1":"2021048504", "8/12-2":"2021048505",
+  /* 8/12第4試合は順延。実際に行われた8/13第1試合は別IDが振られている */
+  "8/13-0":"2021048619", "8/13-1":"2021048507", "8/13-2":"2021048508", "8/13-3":"2021048509",
+  "8/14-0":"2021048510", "8/14-1":"2021048511", "8/14-2":"2021048512",
+  "8/15-0":"2021048513", "8/15-1":"2021048514", "8/15-2":"2021048515", "8/15-3":"2021048516",
+  "8/16-0":"2021048517", "8/16-1":"2021048518", "8/16-2":"2021048519", "8/16-3":"2021048520"
+};
+function videoLink(date, i){
+  const id = VIDEO[`${date}-${i}`];
+  if(!id) return "";
+  return `<a class="vlink" target="_blank" rel="noopener"
+    href="https://baseball.yahoo.co.jp/hsb_summer/game/${id}/video"
+    ><span class="vgo">▶</span>ハイライト動画を見る</a>`;
+}
 /* 曲名＋アーティストでYouTube検索へ。直リンクだとリンク切れするため検索で逃がす */
 function ytLink(title, artist){
   const who = String(artist).split(" feat.")[0];
@@ -1760,7 +1788,7 @@ function teamRow(name, odds, runs, state, showNote, round){
     <span class="odds">${odds?odds.toFixed(1)+"倍":"—"}</span>
   </div>`;
 }
-function gameCard(g,i,done){
+function gameCard(g,i,done,date){
   const w = winnerOf(g);
   const st = k => w===null ? "" : (w===k ? "win" : "lose");
   const showNote = w===null;
@@ -1775,6 +1803,7 @@ function gameCard(g,i,done){
   return `<div class="g ${g.a?"":"tbd"} ${g.void?"void":""} ${roundCls}">
     <div class="gh"><span class="no">第${i+1}試合${roundCls?"":`　${g.r||""}`}</span><span class="tm">${g.t}</span></div>
     ${g.tag?`<div class="gtag">★${g.tag}</div>`:""}
+    ${g.s ? videoLink(date, i) : ""}
     ${roundTag}${rows}${stats}${hits}
   </div>`;
 }
@@ -1813,7 +1842,7 @@ function renderTimeline(){
         ${d.now?'<span class="badge-now">本日</span>':""}${tally}
       </div>
       ${wbadge(d.d)}
-      <div class="cards">${d.games.map((g,i)=>gameCard(g,i,done)).join("")}</div>${b}
+      <div class="cards">${d.games.map((g,i)=>gameCard(g,i,done,d.d)).join("")}</div>${b}
       ${d.final?'<div class="flagnote">深紅の大優勝旗</div>':""}
     </article>`;
   }
