@@ -1813,17 +1813,24 @@ function renderTimeline(){
     if(!w) return "";
     return `<span class="wbadge ${w.alert?"walert2":""}">${w.icon} ${w.hi}°/${w.lo}° 降水${w.pop}%${w.alert?'<b>順延の可能性</b>':""}</span>`;
   };
-  /* 本日とこれからの日程を先に出し、終了した日程は折りたたむ */
-  const nowIdx = DAYS.findIndex(d=>d.now);
-  const future = nowIdx < 0 ? DAYS.slice() : DAYS.slice(nowIdx);
-  const past   = nowIdx < 0 ? []           : DAYS.slice(0, nowIdx);
+  /* 全試合が終わった日は折りたたみ、これからの日程だけを常時表示する */
+  const finished = d => {
+    const live = (d.games||[]).filter(g=>!g.void);
+    return live.length > 0 && live.every(g=>g.s);
+  };
+  let lastDone = -1;
+  DAYS.forEach((d,i)=>{ if(finished(d)) lastDone = i; });
+  const future = DAYS.slice(lastDone+1);
+  const past   = DAYS.slice(0, lastDone+1);
+  /* ジャンプ先は、これから試合がある最初の日 */
+  const anchor = (future.find(d=>!d.rest && (d.games||[]).length) || DAYS.find(d=>d.now) || {}).d;
   const pastHtml = past.length
     ? `<details class="tlpast"><summary>終了した日程（${past.length}日ぶん）</summary>
-       <div class="tlpastb">${past.map(d=>dayCard(d)).join("")}</div></details>`
+       <div class="tlpastb">${past.map(d=>dayCard(d, anchor)).join("")}</div></details>`
     : "";
   document.getElementById("timeline").innerHTML =
-    future.map(d=>dayCard(d)).join("") + pastHtml;
-  function dayCard(d){
+    future.map(d=>dayCard(d, anchor)).join("") + pastHtml;
+  function dayCard(d, anchor){
     if(d.rest) return `<div class="restday"><b>${d.d}<i class="dow ${dowInfo(d.d).cls}">(${dowInfo(d.d).label})</i></b>休養日${wbadge(d.d)}</div>`;
     const done = (d.games||[]).some(g=>winnerOf(g)!==null);
     const idx = played.indexOf(d);
@@ -1834,7 +1841,7 @@ function renderTimeline(){
     const b = Object.entries(d.bonus||{}).map(([n,v])=>
       `<div class="bonus ${v<0?"minus":""}">${v>0?"◎ 全試合的中":"▽ 全試合外し"}　${n} ${v>0?"+":""}${v}pt</div>`).join("");
     const off = d.scored===false ? `<span class="nth">予想対象外</span>` : "";
-    return `<article class="day ${d.final?"final":""} ${rdCls==="qf"?"qf-day":""} ${rdCls==="sf"?"sf-day":""} ${d.now?"now":(done?"done":"")}" ${d.now?'id="today-anchor"':""}>
+    return `<article class="day ${d.final?"final":""} ${rdCls==="qf"?"qf-day":""} ${rdCls==="sf"?"sf-day":""} ${d.now?"now":(done?"done":"")}" ${d.d===anchor?'id="today-anchor"':""}>
       <div class="dayhead">
         <span class="d">${d.d}<i class="dow ${dowInfo(d.d).cls}">(${dowInfo(d.d).label}${dowInfo(d.d).holiday?"・祝":""})</i></span><span class="nth">${d.nth}</span>
         <span class="rd ${rdCls}">${rounds}</span>${off}
@@ -2255,7 +2262,7 @@ drawIvy(document.getElementById("ivyR"), 77315);
   if(!cur || !el) return;
   const [m,dd] = cur.d.split("/").map(Number);
   const live = (cur.games||[]).some(g=>!g.void && !g.s);
-  el.innerHTML = `<i></i>${cur.nth}　${m}月${dd}日　${live?"開催中":"本日の日程"}<span class="lampgo">▶</span>`;
+  el.innerHTML = `<i></i>${cur.nth}　${m}月${dd}日　${live?"開催中":"全試合終了"}<span class="lampgo">▶</span>`;
 })();
 
 </script>
