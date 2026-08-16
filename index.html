@@ -326,16 +326,6 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:11px;
 .intro p.dim{color:var(--ink-dim);font-size:12.5px;margin-top:7px}
 .intro b{color:var(--ink)}
 .intro p.dim b,.intro a{color:var(--gold)}
-.rcb{min-width:440px;table-layout:fixed}
-.rcb th.rcl{width:86px}
-.rcb thead th{text-align:center;font-family:var(--min);font-size:13.5px;color:var(--accent);letter-spacing:.04em;padding:8px 6px;white-space:nowrap;border-bottom:2px solid var(--accent)}
-.rcb thead th.rcl{color:var(--ink-dim);font-size:11.5px;text-align:left;padding-left:2px;border-bottom:1px solid var(--line)}
-.rcb tbody th.rcl{font-family:var(--min);font-size:12px;color:var(--ink-dim);text-align:left;font-weight:400;padding:10px 6px 10px 2px;white-space:nowrap;border-bottom:1px solid rgba(243,239,226,.07)}
-.rcb tbody td{text-align:center;font-family:var(--num);font-size:13px;padding:10px 6px;border-bottom:1px solid rgba(243,239,226,.07);vertical-align:top}
-.rcb td b{display:block;font-size:17px;font-weight:600;line-height:1.25}
-.rcb td i{font-style:normal;font-size:10.5px;color:var(--ink-dim)}
-.rcb td i.rcd{display:block;margin-top:3px;font-size:10px;line-height:1.4;white-space:normal}
-.rcb td.rctop b{color:var(--gold)}
 .pobox{margin:0 0 12px;padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:rgba(229,185,60,.06)}
 .pobox>b{display:block;font-family:var(--min);font-size:12px;letter-spacing:.08em;color:var(--gold);margin-bottom:6px}
 .poseq{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
@@ -565,6 +555,24 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:11px;
 .tt td.p{font-family:var(--min);font-size:12px;color:var(--ink-dim);white-space:nowrap}
 .tt{min-width:560px}
 .tt td.n{font-family:var(--min);font-weight:700;font-size:14.5px;letter-spacing:.04em;white-space:nowrap}
+/* 記録室（.tt の既存ルールに勝たせるため .tt.rcb で指定し、.tt より後ろに置く） */
+.tt.rcb{table-layout:fixed;min-width:0;width:100%}
+.tt.rcb th.rcl{width:74px}
+.tt.rcb thead th{text-align:center;font-family:var(--min);font-size:13.5px;letter-spacing:.04em;
+  color:var(--accent);padding:8px 4px;white-space:nowrap;border-bottom:2px solid var(--accent);cursor:default}
+.tt.rcb thead th.rcl{color:var(--ink-dim);font-size:11.5px;text-align:left;padding-left:2px;
+  border-bottom:1px solid var(--line)}
+.tt.rcb tbody tr:nth-child(odd){background:transparent}
+.tt.rcb tbody tr:hover{background:transparent}
+.tt.rcb tbody th.rcl{font-family:var(--min);font-size:12px;color:var(--ink-dim);text-align:left;
+  font-weight:400;padding:11px 4px 11px 2px;white-space:nowrap;
+  border-bottom:1px solid rgba(243,239,226,.07)}
+.tt.rcb tbody td{text-align:center;font-family:var(--num);font-size:13px;padding:11px 4px;
+  border-bottom:1px solid rgba(243,239,226,.07);vertical-align:top}
+.tt.rcb td b{display:block;font-size:17px;font-weight:600;line-height:1.25}
+.tt.rcb td i{font-style:normal;font-size:10.5px;color:var(--ink-dim)}
+.tt.rcb td i.rcd{display:block;margin-top:3px;font-size:10px;line-height:1.4;white-space:normal}
+.tt.rcb td.rctop b{color:var(--gold)}
 .tt td.d{font-family:var(--num);color:rgba(243,239,226,.72);white-space:nowrap}
 .tt td.o{color:var(--gold)}
 .tablewrap{border:1px solid var(--line);background:rgba(0,0,0,.24);overflow-x:auto}
