@@ -326,6 +326,12 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:11px;
 .intro p.dim{color:var(--ink-dim);font-size:12.5px;margin-top:7px}
 .intro b{color:var(--ink)}
 .intro p.dim b,.intro a{color:var(--gold)}
+.pobox{margin:0 0 12px;padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:rgba(229,185,60,.06)}
+.pobox>b{display:block;font-family:var(--min);font-size:12px;letter-spacing:.08em;color:var(--gold);margin-bottom:6px}
+.poseq{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.poseq i{font-style:normal;font-family:var(--min);font-size:13.5px;border-left:3px solid var(--accent);padding-left:7px;white-space:nowrap}
+.poseq em{font-style:normal;color:var(--ink-dim);font-size:12px}
+.ponote{display:block;margin-top:7px;font-size:11.5px;line-height:1.6;color:var(--ink-dim)}
 .hint{margin:4px 2px 10px;font-size:12.5px;line-height:1.7;color:var(--ink-dim)}
 .cbdays{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
 .cbday{font-size:12px;font-family:var(--num);padding:3px 8px;border-radius:6px;border:1px solid var(--line);color:var(--ink-dim)}
@@ -728,6 +734,7 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   <section class="reveal" id="nav-predict">
     <div class="head"><h2>予想入力</h2><em>Your Pick</em></div>
     <p class="hint"><span class="sn">オッズ＝的中時の倍率。</span><span class="sn">2.1の側を当てれば +2.1pt。</span><span class="sn">数字が大きいほど不利と見られている側です。</span></p>
+    <div id="postorder"></div>
     <div id="predict"></div>
   </section>
   <section class="reveal" id="nav-schedule">
@@ -779,6 +786,7 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
           <li>当てた試合の<b>オッズ ×1点</b></li>
           <li>当日の全試合的中で<b>＋1点</b>（試合数不問）</li>
           <li>当日の全試合外しで<b>−1点</b>（試合数不問）</li>
+          <li>準々決勝・準決勝の2日間は、このボーナスとペナルティを<b>2倍</b>にする（＋2点／−2点）</li>
         </ul>
       </div>
       <div class="rulebox">
@@ -790,6 +798,14 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
           <li>全試合に<b>必ず1pt以上</b>ベットすること</li>
           <li>1試合につき選択できるのは<b>1校のみ</b>（両校賭けは不可）</li>
           <li>的中したら<b>ベット額 ×オッズ</b>を獲得</li>
+        </ul>
+      </div>
+      <div class="rulebox">
+        <h3>予想の投稿順</h3>
+        <ul>
+          <li>LINEに予想を貼る順番は、<b>その時点の順位が上の人から</b></li>
+          <li>上位者の予想を丸写ししても差は縮まらないため、後追いの利点がなくなる</li>
+          <li>現在の投稿順は予想入力ページに表示される</li>
         </ul>
       </div>
       <div class="rulebox">
@@ -1112,9 +1128,24 @@ function renderStandings(){
       <div class="pay">${last?`現時点の精算 <b>¥${(gap*RATE).toLocaleString()}</b> → ${totals[0].name}`:"&nbsp;"}</div>
     </div>`;
   }).join("");
+  renderPostOrder();
   renderSongs();
   renderRankTable();
   renderSettlement();
+}
+
+/* ---------- 予想をLINEに貼る順番（順位が上の人から） ---------- */
+function renderPostOrder(){
+  const box = document.getElementById("postorder");
+  if(!box) return;
+  const {totals} = STATE;
+  if(!totals || totals.length < 2){ box.innerHTML = ""; return; }
+  box.innerHTML = `<div class="pobox">
+    <b>LINEに貼る順番</b>
+    <span class="poseq">${totals.map((p,i)=>
+      `<i style="--accent:${p.color}">${i+1}. ${p.name}</i>`).join('<em>→</em>')}</span>
+    <span class="ponote">順位が上の人から貼ります。上位を丸写ししても差は縮まりません。</span>
+  </div>`;
 }
 
 /* ---------- 順位表（プロ野球の順位表と同じ形） ---------- */
@@ -1299,7 +1330,7 @@ function renderComeback(){
         <span class="cbneed">${msg}</span>
       </div>`;
     }).join("")}
-    <p class="cbnote">${sent(`相手が1試合も当てない前提の上限値です。ポイントベット制の日は1試合に持ち点を寄せた場合の最大で計算しています${R.unknown?"（オッズ未定の試合は2.0倍と仮定）":""}。全試合的中の+1ptを含みます。`)}</p>
+    <p class="cbnote">${sent(`相手が1試合も当てない前提の上限値です。ポイントベット制の日は1試合に持ち点を寄せた場合の最大で計算しています${R.unknown?"（オッズ未定の試合は2.0倍と仮定）":""}。全試合的中のボーナス（ベット制の日は+2pt、それ以外は+1pt）を含みます。`)}</p>
   </div>`;
 }
 
@@ -1320,7 +1351,7 @@ function remainingMax(){
     const sum = odds.reduce((s,o)=>s+o, 0);
     /* ベット制：全試合に1ptずつ置き、余りを最高オッズの試合に全部寄せる */
     let day = budget ? sum + Math.max(budget - gs.length, 0) * Math.max(...odds) : sum;
-    day += 1;  /* 全試合的中ボーナス */
+    day += budget ? 2 : 1;  /* 全試合的中ボーナス。ベット制の日は2倍 */
     perDay.push({date:d.d, round:gs[0].r, n:gs.length, budget, max:day});
     total += day;
   });
