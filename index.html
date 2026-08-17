@@ -1542,7 +1542,7 @@ function renderPredict(){
     const budgetBar = !budget ? "" : `<div class="pbudget ${left===0&&allPicked?"ok":"warn"}">
       持ち点 <b>${budget}</b>pt　使用 <b>${used}</b>　残り <b>${left}</b>
       ${left!==0 ? "　※残りをすべて配分してください" : (allPicked ? "　配分完了" : "　※全試合の予想を選んでください")}
-      ${anyClosed ? "" : `<button class="pbetreset" data-reset="${date}">均等配分に戻す</button>`}
+      ${anyClosed ? "" : `<button class="pbetreset" data-reset="${date}">全部1ptに戻す</button>`}
     </div>`;
     return `<div class="pday"><div class="pdate">${date}<i class="dow ${dowInfo(date).cls}">(${dowInfo(date).label})</i>${budget?`<em class="pbadge ${round==="準決勝"?"sf":"qf"}">${round}・ポイントベット制</em>`:""}</div>${budgetBar}${rows}</div>`;
   }).join("");
@@ -1586,9 +1586,8 @@ function bindPredict(){
     const budget = BET_BUDGET[(items[0]||{}).round] || 0;
     if(!budget || !items.length) return;
     PRED.bets = PRED.bets || {};
-    const base = Math.floor(budget / items.length);
-    let rest = budget - base*items.length;
-    items.forEach(it=>{ PRED.bets[it.id] = base + (rest-- > 0 ? 1 : 0); });
+    /* 最低ベットの1ptに戻し、残りは自分で配分してもらう */
+    items.forEach(it=>{ PRED.bets[it.id] = 1; });
     savePred(); renderPredict();
   }));
   const copy = document.getElementById("predCopy");
