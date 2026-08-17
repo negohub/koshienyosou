@@ -326,6 +326,19 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:11px;
 .intro p.dim{color:var(--ink-dim);font-size:12.5px;margin-top:7px}
 .intro b{color:var(--ink)}
 .intro p.dim b,.intro a{color:var(--gold)}
+.dlbox{margin:0 0 10px;padding:10px 12px;border-radius:9px;border:1px solid var(--line);display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+.dlbox>b{font-family:var(--num);font-size:14px;letter-spacing:.02em}
+.dlbox.ok{background:rgba(143,184,154,.08);border-color:rgba(143,184,154,.3)}
+.dlbox.ok>b{color:#8FB89A}
+.dlbox.ng{background:rgba(220,80,80,.09);border-color:rgba(220,80,80,.3)}
+.dlbox.ng>b{color:#e08585}
+.dlbox.urgent>b{text-shadow:0 0 14px rgba(224,133,133,.5)}
+.dlwarn{font-size:12px;color:#e08585}
+.dlok{font-size:12px;color:var(--ink-dim)}
+.cbjudge{margin:2px 0 12px;padding:9px 11px;border-radius:8px;font-size:12.5px;line-height:1.7;background:rgba(243,239,226,.04);border-left:3px solid var(--line);color:var(--ink-dim)}
+.cbjudge.fixed{background:rgba(229,185,60,.1);border-left-color:var(--gold);color:var(--gold);font-family:var(--min);font-size:13.5px}
+.cbin{font-style:normal;display:inline-block;font-size:10.5px;letter-spacing:.06em;background:rgba(143,184,154,.18);color:#8FB89A;padding:1px 6px;border-radius:3px;margin-right:7px}
+.cbout{font-style:normal;display:inline-block;font-size:10.5px;letter-spacing:.06em;background:rgba(220,80,80,.2);color:#e08585;padding:1px 6px;border-radius:3px;margin-right:7px}
 .pobox{margin:0 0 12px;padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:rgba(229,185,60,.06)}
 .pobox>b{display:block;font-family:var(--min);font-size:12px;letter-spacing:.08em;color:var(--gold);margin-bottom:6px}
 .poseq{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
@@ -757,7 +770,8 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   </section>
   <section class="reveal" id="nav-predict">
     <div class="head"><h2>予想入力</h2><em>Your Pick</em></div>
-    <p class="hint"><span class="sn">オッズ＝的中時の倍率。</span><span class="sn">2.1の側を当てれば +2.1pt。</span><span class="sn">数字が大きいほど不利と見られている側です。</span></p>
+    <p class="hint"><span class="sn">オッズ＝的中時の倍率。</span><span class="sn">2.1の側を当てれば +2.1pt。</span><span class="sn">数字が大きいほど不利と見られている側です。</span><span class="sn">締切は試合日の0時なので、前日の夜までに入れてください。</span></p>
+    <div id="deadline"></div>
     <div id="postorder"></div>
     <div id="predict"></div>
   </section>
@@ -830,6 +844,14 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
           <li>LINEに予想を貼る順番は、<b>その時点の順位が上の人から</b></li>
           <li>上位者の予想を丸写ししても差は縮まらないため、後追いの利点がなくなる</li>
           <li>現在の投稿順は予想入力ページに表示される</li>
+        </ul>
+      </div>
+      <div class="rulebox">
+        <h3>予想の締切</h3>
+        <ul>
+          <li>締切は<b>試合日の0時</b>。日付が変われば、その日の予想は入力・変更できない</li>
+          <li>前日の夜までに入力しておくこと</li>
+          <li>ポイントベット制の日は1日の持ち点を配分するため、途中経過を見てからの賭け直しを防ぐ目的もある</li>
         </ul>
       </div>
       <div class="rulebox">
@@ -1152,6 +1174,7 @@ function renderStandings(){
       <div class="pay">${last?`現時点の精算 <b>¥${(gap*RATE).toLocaleString()}</b> → ${totals[0].name}`:"&nbsp;"}</div>
     </div>`;
   }).join("");
+  renderDeadline();
   renderPostOrder();
   renderRecords();
   renderSongs();
@@ -1223,6 +1246,34 @@ function renderRecords(){
             v=>v.o ? `<b>${v.o.odd.toFixed(1)}</b><i class="rcd">${v.o.team}<br>${v.o.sc} ${v.o.opp}</i>` : "<b>—</b>")}
       ${row("的中数", r=>r.win, (v,r)=>`<b>${v}</b><i>/${r.win+r.lose}</i>`)}
     </tbody></table></div>`;
+}
+
+/* ---------- 締切カウントダウンと未入力の警告 ---------- */
+function renderDeadline(){
+  const box = document.getElementById("deadline");
+  if(!box) return;
+  const items = upcomingGames().filter(it=>!it.closed);
+  if(!items.length){ box.innerHTML = ""; return; }
+  const date = items[0].date;                       /* 直近の受付中の日 */
+  const day  = items.filter(it=>it.date === date);
+  const left = dayDeadline(date).getTime() - Date.now();
+  const hh = Math.floor(left / 3600000);
+  const mm = Math.floor((left % 3600000) / 60000);
+  const picks = PRED.picks || {};
+  const none  = day.filter(it=>!(picks[it.id]===0 || picks[it.id]===1)).length;
+  const budget = BET_BUDGET[day[0].round] || 0;
+  let bet = "";
+  if(budget){
+    const used = day.reduce((s,it)=>s + ((PRED.bets||{})[it.id]===undefined ? 1 : (PRED.bets||{})[it.id]), 0);
+    if(used !== budget) bet = `<span class="dlwarn">持ち点が${used>budget?"超過":"残り"}${Math.abs(budget-used)}ptです</span>`;
+  }
+  const urgent = left < 6*3600000;
+  box.innerHTML = `<div class="dlbox ${none||bet?"ng":"ok"} ${urgent?"urgent":""}">
+    <b>${date}の締切まで あと${hh>0?`${hh}時間`:""}${mm}分</b>
+    ${none ? `<span class="dlwarn">未入力の試合が${none}つあります</span>`
+           : `<span class="dlok">${day.length}試合すべて入力済み</span>`}
+    ${bet}
+  </div>`;
 }
 
 /* ---------- 予想をLINEに貼る順番（順位が上の人から） ---------- */
@@ -1386,7 +1437,7 @@ function upcomingGames(){
       if(winnerOf(g)!==null) return;
       if(g.oa===undefined || g.ob===undefined) return;
       out.push({id:`${d.d}-${i}`, date:d.d, no:i+1, time:g.t, round:g.r, g,
-                closed: isClosed(d.d, g.t)});
+                closed: isClosed(d.d)});
     });
   });
   return out;
@@ -1404,15 +1455,23 @@ function renderComeback(){
     <div class="cbhead">残り<b>${R.remain}</b>試合　理論上あと最大 <b>${r1(R.total)}</b>pt</div>
     <div class="cbdays">${R.perDay.map(d=>
       `<span class="cbday">${d.date} ${d.round}${d.budget?`<i>持ち点${d.budget}</i>`:""} 最大 ${r1(d.max)}pt</span>`).join("")}</div>
+    ${(() => {
+      const alive = totals.slice(1).filter(p => r1(topPt - p.pt) <= R.total);
+      if(alive.length) return `<div class="cbjudge">${leader.name}の総合優勝は未確定。${
+        alive.map(p=>p.name).join("・")}に数字上の逆転の可能性が残っています</div>`;
+      return `<div class="cbjudge fixed">${leader.name}の総合優勝が確定。note記事の執筆者が決まりました</div>`;
+    })()}
     ${totals.slice(1).map(p=>{
       const gap = r1(topPt - p.pt);
       let msg;
       if(gap<=0){ msg = "首位"; }
-      else if(gap > R.total){ msg = `残りを全部取っても <b>${r1(gap-R.total)}</b>pt足りない`; }
+      else if(gap > R.total){
+        msg = `<em class="cbout">逆転の可能性は消滅</em>残りを全部取っても <b>${r1(gap-R.total)}</b>pt足りない`;
+      }
       else {
         const pct = Math.round(gap / R.total * 100);
         const oneDay = R.perDay.find(d=>d.max >= gap);
-        msg = `残り最大の約<b>${pct}%</b>を取れば追いつく`
+        msg = `<em class="cbin">逆転可能</em>残り最大の約<b>${pct}%</b>を取れば追いつく`
             + (oneDay ? `　<i class="cbday1">${oneDay.date}の${oneDay.round}だけでも届く計算</i>` : "");
       }
       return `<div class="cbrow" style="--accent:${p.color}">
@@ -1816,14 +1875,16 @@ function dowInfo(dateStr){
 }
 
 /* 試合開始時刻を Date にする。開始済みなら予想は締め切る */
-function gameStart(dateStr, timeStr){
+/* 予想の締切は「試合日の0時」。日付が変わった時点でその日はまるごと締め切る。
+   ポイントベット制は1日の持ち点を配分する方式なので、第1試合の結果を見てから
+   残りに賭け直せてしまわないよう、日単位で止める */
+function dayDeadline(dateStr){
   const [m,d] = String(dateStr).split("/").map(Number);
-  const [hh,mm] = String(timeStr||"0:00").split(":").map(Number);
-  if(!m || !d || Number.isNaN(hh)) return null;
-  return new Date(2026, m-1, d, hh, mm||0, 0);
+  if(!m || !d) return null;
+  return new Date(2026, m-1, d, 0, 0, 0);
 }
-function isClosed(dateStr, timeStr){
-  const t = gameStart(dateStr, timeStr);
+function isClosed(dateStr){
+  const t = dayDeadline(dateStr);
   return t ? (Date.now() >= t.getTime()) : false;
 }
 
