@@ -326,6 +326,38 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:11px;
 .intro p.dim{color:var(--ink-dim);font-size:12.5px;margin-top:7px}
 .intro b{color:var(--ink)}
 .intro p.dim b,.intro a{color:var(--gold)}
+.gswing{display:flex;flex-direction:column;gap:3px;padding:8px 13px;
+  border-top:1px solid rgba(243,239,226,.07);background:rgba(0,0,0,.14)}
+.gsw1{font-family:var(--num);font-size:11.5px;color:var(--ink-dim);line-height:1.6}
+.gsw1 b{font-family:var(--min);font-size:12.5px;color:rgba(243,239,226,.8);font-weight:500}
+.gsw1 i{font-style:normal;color:var(--accent);margin-left:8px;white-space:nowrap}
+.gsw1.none{opacity:.45}
+.bbnone{font-size:12.5px;line-height:1.7;color:var(--ink-dim);margin:0}
+.bbday{margin-bottom:18px}
+.bbhead{font-family:var(--min);font-size:13.5px;letter-spacing:.06em;margin-bottom:7px}
+.bbhead i{font-style:normal;font-family:var(--num);font-size:11.5px;color:var(--gold);margin-left:4px}
+.tt.bbt{table-layout:fixed;min-width:0;width:100%}
+.tt.bbt th.bbl{width:52px}
+.tt.bbt th.bbtot,.tt.bbt td.bbtot{width:34px}
+.tt.bbt thead th{text-align:center;font-family:var(--min);font-size:10.5px;line-height:1.35;
+  color:var(--ink-dim);padding:6px 3px;white-space:normal;cursor:default;
+  border-bottom:1px solid var(--line)}
+.tt.bbt thead th em{display:block;font-style:normal;font-size:9px;opacity:.5;margin:1px 0}
+.tt.bbt tbody th.bbl{font-family:var(--min);font-size:12.5px;text-align:left;font-weight:400;
+  padding:9px 3px 9px 6px;white-space:nowrap;border-left:3px solid var(--accent);
+  border-bottom:1px solid rgba(243,239,226,.07)}
+.tt.bbt tbody td{text-align:center;padding:9px 3px;vertical-align:middle;
+  border-bottom:1px solid rgba(243,239,226,.07)}
+.tt.bbt tbody tr:nth-child(odd){background:transparent}
+.tt.bbt tbody tr:hover{background:transparent}
+.bbp{display:block;font-family:var(--min);font-size:10.5px;color:var(--ink-dim);line-height:1.3}
+.tt.bbt td b{display:block;font-family:var(--num);font-size:16px;font-weight:600;line-height:1.2}
+.tt.bbt td.bbw{background:rgba(229,185,60,.12)}
+.tt.bbt td.bbw b,.tt.bbt td.bbw .bbp{color:var(--gold)}
+.tt.bbt td.bbl2{opacity:.4}
+.tt.bbt td.bbe{color:rgba(243,239,226,.22);font-family:var(--num)}
+.tt.bbt td.bbtot{font-family:var(--num);font-size:14px;color:var(--ink-dim)}
+.tt.bbt td.bbtot.bbng{color:#e08585}
 .dlbox{margin:0 0 10px;padding:10px 12px;border-radius:9px;border:1px solid var(--line);display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
 .dlbox>b{font-family:var(--num);font-size:14px;letter-spacing:.02em}
 .dlbox.ok{background:rgba(143,184,154,.08);border-color:rgba(143,184,154,.3)}
@@ -703,7 +735,7 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   <nav class="secnav" id="secnav">
     <a href="#nav-board">戦況</a><a href="#nav-standings">順位</a><a href="#nav-personal">個人成績</a>
     <a href="#nav-champions">優勝予想</a>
-    <a href="#nav-predict">予想</a><a href="#nav-schedule">日程</a><a href="#nav-teams">出場校</a>
+    <a href="#nav-predict">予想</a><a href="#nav-bets">配分対決</a><a href="#nav-schedule">日程</a><a href="#nav-teams">出場校</a>
     <a href="#nav-records">記録室</a><a href="#nav-upsets">大穴</a><a href="#nav-chart">推移</a>
     <a href="#nav-comeback">逆転</a><a id="navTrends" href="#trendsWrap" style="display:none">傾向</a>
     <a href="#nav-songs">主題歌</a><a href="#nav-rules">規定</a>
@@ -774,6 +806,11 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
     <div id="deadline"></div>
     <div id="postorder"></div>
     <div id="predict"></div>
+  </section>
+  <section class="reveal" id="nav-bets">
+    <div class="head"><h2>配分対決</h2><em>Bet Board</em></div>
+    <p class="hint"><span class="sn">ポイントベット制の日は、3人の持ち点の振り分けを試合前に公開します。</span></p>
+    <div id="betboard"></div>
   </section>
   <section class="reveal" id="nav-schedule">
     <div class="head"><h2>大会日程</h2><em>8/5 → 8/22</em></div>
@@ -1063,7 +1100,7 @@ const DAYS = [
  ]},
  {d:"8/17", rest:true},
  {d:"8/18", nth:"第13日", games:[
-   {t:"8:00", r:"準々決勝", a:"天理", b:"三重", oa:1.9, ob:2.1, tag:"逆転の天理と先行逃げ切りの三重"},{t:"10:30", r:"準々決勝", a:"仙台育英", b:"智辯和歌山", oa:2.0, ob:1.9, tag:"14安打の仙台育英と延長を制した智辯"},{t:"13:00", r:"準々決勝", a:"花巻東", b:"横浜", oa:2.4, ob:1.7, tag:"13安打の横浜と2投手完封の花巻東"},{t:"15:30", r:"準々決勝", a:"健大高崎", b:"有明", oa:1.8, ob:2.3, tag:"3試合連続逆転の有明が挑む"}
+   {t:"8:00", r:"準々決勝", a:"天理", b:"三重", oa:1.9, ob:2.1, picks:{"根来":"三重"}, bets:{"根来":2}, tag:"逆転の天理と先行逃げ切りの三重"},{t:"10:30", r:"準々決勝", a:"仙台育英", b:"智辯和歌山", oa:2.0, ob:1.9, picks:{"根来":"智辯和歌山"}, bets:{"根来":2}, tag:"14安打の仙台育英と延長を制した智辯"},{t:"13:00", r:"準々決勝", a:"花巻東", b:"横浜", oa:2.4, ob:1.7, picks:{"根来":"横浜"}, bets:{"根来":2}, tag:"13安打の横浜と2投手完封の花巻東"},{t:"15:30", r:"準々決勝", a:"健大高崎", b:"有明", oa:1.8, ob:2.3, picks:{"根来":"健大高崎"}, bets:{"根来":2}, tag:"3試合連続逆転の有明が挑む"}
  ]},
  {d:"8/19", rest:true},
  {d:"8/20", nth:"第14日", games:[{t:"8:00", r:"準決勝"},{t:"10:30", r:"準決勝"}]},
@@ -1175,6 +1212,7 @@ function renderStandings(){
     </div>`;
   }).join("");
   renderDeadline();
+  renderBetBoard();
   renderPostOrder();
   renderRecords();
   renderSongs();
@@ -1246,6 +1284,62 @@ function renderRecords(){
             v=>v.o ? `<b>${v.o.odd.toFixed(1)}</b><i class="rcd">${v.o.team}<br>${v.o.sc} ${v.o.opp}</i>` : "<b>—</b>")}
       ${row("的中数", r=>r.win, (v,r)=>`<b>${v}</b><i>/${r.win+r.lose}</i>`)}
     </tbody></table></div>`;
+}
+
+/* ---------- この試合で動くpt（未決着かつ予想が登録済みの試合だけ） ---------- */
+function swingLine(g){
+  if(g.s || g.void || !g.picks || !g.a || !g.b) return "";
+  if(g.oa === undefined || g.ob === undefined) return "";
+  const budget = BET_BUDGET[g.r] || 0;
+  const side = (team, odd) => {
+    const gain = PLAYERS.filter(p=>g.picks[p.name] === team).map(p=>{
+      const bet = budget ? ((g.bets && g.bets[p.name]) || 1) : 1;
+      return `<i style="--accent:${p.color}">${p.name} +${r1(odd*bet)}</i>`;
+    });
+    return gain.length
+      ? `<span class="gsw1"><b>${team}</b>なら ${gain.join("")}</span>`
+      : `<span class="gsw1 none"><b>${team}</b>なら 該当なし</span>`;
+  };
+  return `<div class="gswing">${side(g.a, g.oa)}${side(g.b, g.ob)}</div>`;
+}
+
+/* ---------- 配分対決ボード：ベット制の日の3人の振り分けを並べる ---------- */
+function renderBetBoard(){
+  const box = document.getElementById("betboard");
+  if(!box) return;
+  const days = DAYS.filter(d=>{
+    const gs = (d.games||[]).filter(g=>!g.void && g.a && g.b);
+    return gs.length && BET_BUDGET[gs[0].r] && gs.some(g=>g.bets);
+  });
+  if(!days.length){
+    box.innerHTML = `<p class="bbnone">${sent("まだ配分が登録されていません。3人ぶんの予想が出そろったら、ここに振り分けが並びます。")}</p>`;
+    return;
+  }
+  box.innerHTML = days.map(d=>{
+    const gs = (d.games||[]).filter(g=>!g.void && g.a && g.b);
+    const budget = BET_BUDGET[gs[0].r];
+    return `<div class="bbday">
+      <div class="bbhead">${d.d}　${gs[0].r}　<i>持ち点${budget}pt</i></div>
+      <div class="sgwrap"><table class="tt bbt"><thead><tr>
+        <th class="bbl">　</th>${gs.map(g=>
+          `<th>${g.a}<em>vs</em>${g.b}</th>`).join("")}<th class="bbtot">計</th>
+      </tr></thead><tbody>${PLAYERS.map(p=>{
+        let sum = 0;
+        const cells = gs.map(g=>{
+          const bet  = (g.bets  && g.bets[p.name])  || null;
+          const pick = (g.picks && g.picks[p.name]) || null;
+          if(!bet || !pick) return `<td class="bbe">—</td>`;
+          sum += bet;
+          const w = winnerOf(g);
+          const cls = w===null ? "" : (pick === (w===0 ? g.a : g.b) ? "bbw" : "bbl2");
+          return `<td class="${cls}"><span class="bbp">${pick}</span><b>${bet}</b></td>`;
+        }).join("");
+        return `<tr style="--accent:${p.color}">
+          <th class="bbl">${p.name}</th>${cells}
+          <td class="bbtot ${sum===budget?"":"bbng"}">${sum||"—"}</td></tr>`;
+      }).join("")}</tbody></table></div>
+    </div>`;
+  }).join("");
 }
 
 /* ---------- 締切カウントダウンと未入力の警告 ---------- */
@@ -1984,6 +2078,7 @@ function gameCard(g,i,done,date){
   return `<div class="g ${g.a?"":"tbd"} ${g.void?"void":""} ${roundCls}">
     <div class="gh"><span class="no">第${i+1}試合${roundCls?"":`　${g.r||""}`}</span><span class="tm">${g.t}</span></div>
     ${g.tag?`<div class="gtag">★${g.tag}</div>`:""}
+    ${swingLine(g)}
     ${g.s ? videoLink(date, i) : ""}
     ${roundTag}${rows}${stats}${hits}
   </div>`;
