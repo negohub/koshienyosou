@@ -1202,19 +1202,24 @@ function compute(sheet){
 /* ---------- スコアボード ---------- */
 const boardCols = DAYS.filter(d=>d.scored!==false).map(d=>({d:d.d, rest:!!d.rest}));
 function renderBoard(){
-  const {daily, run, played, topPt} = STATE, n = played.length;
+  const {daily, run, played, topPt} = STATE;
+  /* 休養日は daily に入らないので、日付で対応づける（位置でずらすと休養日ぶん1日ずれる） */
+  const playedDates = played.map(d=>d.d);
+  const lastIdx = playedDates.length
+    ? boardCols.map(c=>c.d).lastIndexOf(playedDates[playedDates.length-1]) : -1;
   let h = "<thead><tr><th class='who corner'></th>";
-  boardCols.forEach((c,i)=> h += `<th class="${i>=n?'fut':''}">${c.d}</th>`);
+  boardCols.forEach((c,i)=> h += `<th class="${i>lastIdx?'fut':''}">${c.d}</th>`);
   h += "<th class='r'>計</th></tr></thead><tbody>";
   PLAYERS.forEach(p=>{
     h += `<tr class="${run[p.name]===topPt?'lead':''}"><th class="who" style="color:${p.color}">${p.name}</th>`;
     boardCols.forEach((c,i)=>{
       const dl = i*42;
-      if(i<n){
-        const v = daily[p.name][i];
+      const k = playedDates.indexOf(c.d);
+      if(k > -1){
+        const v = daily[p.name][k];
         h += `<td><span class="plate ${v<0?'neg':(v===0?'zero':'')}" style="animation-delay:${dl}ms">${v}</span></td>`;
       }else{
-        h += `<td class="fut"><span class="plate ${c.rest?'rest':'pending'}" style="animation-delay:${dl}ms">${c.rest?'休':'・'}</span></td>`;
+        h += `<td class="${i>lastIdx?'fut':''}"><span class="plate ${c.rest?'rest':'pending'}" style="animation-delay:${dl}ms">${c.rest?'休':'・'}</span></td>`;
       }
     });
     h += `<td><span class="plate total" style="animation-delay:${boardCols.length*42}ms">${run[p.name]}</span></td></tr>`;
