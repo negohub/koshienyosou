@@ -344,18 +344,6 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:11px;
 .tt.sct td.scp,.tt.sct th.scp{font-size:10.5px;color:var(--ink-dim);width:42px}
 .tt.sct td.sctop{color:var(--gold);font-weight:600}
 .scnote{margin:7px 12px 10px;font-size:11px;line-height:1.6;color:var(--ink-dim)}
-.bbsw{margin-top:9px;padding:9px 11px;border-radius:8px;background:rgba(0,0,0,.2);border-left:3px solid rgba(229,185,60,.35)}
-.bbswt{display:block;font-family:var(--min);font-size:12.5px;letter-spacing:.04em;color:rgba(243,239,226,.75);margin-bottom:4px}
-.gsw1{display:block;font-family:var(--num);font-size:11.5px;color:var(--ink-dim);line-height:1.8}
-.gsw1 b{font-family:var(--min);font-size:12px;color:rgba(243,239,226,.6);font-weight:500}
-.gsw1 i{font-style:normal;color:var(--accent);margin-left:8px;white-space:nowrap}
-.gsw1.none{opacity:.4}
-.gsw2{display:block;font-family:var(--num);font-size:11px;color:rgba(243,239,226,.4);line-height:1.8;padding-left:11px;margin-bottom:3px}
-.gsw2 i{font-style:normal;color:var(--accent);margin-left:9px;white-space:nowrap;opacity:.85}
-.gsw2 em{font-style:normal;font-size:10px;margin-left:3px}
-.gsw2 em.up{color:#8FB89A}
-.gsw2 em.down{color:#e08585}
-.gsw2 em.same{color:rgba(243,239,226,.3)}
 .bbnone{font-size:12.5px;line-height:1.7;color:var(--ink-dim);margin:0}
 .bbday{margin-bottom:18px}
 .bbhead{font-family:var(--min);font-size:13.5px;letter-spacing:.06em;margin-bottom:7px}
@@ -1365,43 +1353,6 @@ function scenarioTable(day, gs, budget){
   </details>`;
 }
 
-/* ---------- この試合で動くpt（采配ボードの中に表示） ---------- */
-function swingLine(g){
-  if(g.s || g.void || !g.picks || !g.a || !g.b) return "";
-  if(g.oa === undefined || g.ob === undefined) return "";
-  const budget = BET_BUDGET[g.r] || 0;
-  const cur = {}; (STATE.totals||[]).forEach(p=>cur[p.name] = p.pt);
-  const curTop = STATE.topPt || 0;
-  const betOf = n => budget ? ((g.bets && g.bets[n]) || 1) : 1;
-  const side = (team, odd) => {
-    const gain = PLAYERS.filter(p=>g.picks[p.name] === team).map(p=>
-      `<i style="--accent:${p.color}">${p.name} +${r1(odd * betOf(p.name))}</i>`);
-    const head = gain.length
-      ? `<span class="gsw1"><b>${team}</b>なら ${gain.join("")}</span>`
-      : `<span class="gsw1 none"><b>${team}</b>なら 該当なし</span>`;
-    /* その結果になった場合の首位との差 */
-    if(!STATE.totals || !STATE.totals.length) return head;
-    const nt = {};
-    PLAYERS.forEach(p=>{
-      nt[p.name] = r1((cur[p.name] || 0) + (g.picks[p.name] === team ? odd * betOf(p.name) : 0));
-    });
-    const sorted = PLAYERS.slice().sort((a,b)=>nt[b.name] - nt[a.name]);
-    const top = nt[sorted[0].name];
-    const rows = sorted.slice(1).map(p=>{
-      const ng = r1(top - nt[p.name]);
-      const og = r1(curTop - (cur[p.name] || 0));
-      const df = r1(ng - og);
-      const cls = df < 0 ? "up" : df > 0 ? "down" : "same";
-      return `<i style="--accent:${p.color}">${p.name} ${ng}pt差<em class="${cls}">${
-        df === 0 ? "±0" : (df > 0 ? "+" : "") + df}</em></i>`;
-    });
-    return head + `<span class="gsw2">└ ${sorted[0].name}が首位　${rows.join("")}</span>`;
-  };
-  return `<div class="bbsw">
-    <b class="bbswt">${g.t}　${g.a} – ${g.b}</b>
-    ${side(g.a, g.oa)}${side(g.b, g.ob)}</div>`;
-}
-
 /* ---------- 采配：ベット制の日の3人の振り分けと、動くptを並べる ---------- */
 function renderBetBoard(){
   const box = document.getElementById("betboard");
@@ -1437,7 +1388,6 @@ function renderBetBoard(){
           <th class="bbl">${p.name}</th>${cells}
           <td class="bbtot ${sum===budget?"":"bbng"}">${sum||"—"}</td></tr>`;
       }).join("")}</tbody></table></div>
-      ${gs.filter(g=>!g.s).map(g=>swingLine(g)).join("")}
       ${scenarioTable(d, gs, budget)}
     </div>`;
   }).join("");
