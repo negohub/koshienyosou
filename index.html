@@ -200,6 +200,22 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:11px;
 .card .gap{font-size:12px;color:var(--ink-dim);margin-top:9px}
 .card .gap b{font-family:var(--num);color:#FF6B60;font-size:14px}
 .card .pay{margin-top:13px;padding-top:11px;border-top:1px dashed var(--line);font-size:12px;color:var(--ink-dim);min-height:44px}
+.card .stt{margin-top:11px;padding:8px 10px;border-radius:8px;line-height:1.5}
+.card .stt em{display:block;font-style:normal;font-weight:800;font-size:13px;letter-spacing:.02em}
+.card .stt span{display:block;margin-top:2px;font-size:11px;color:var(--ink-dim)}
+.card .stt.out{background:rgba(224,133,133,.13);border:1px solid rgba(224,133,133,.3)}
+.card .stt.out em{color:#e08585}
+.card .stt.out em::before{content:"✕ "}
+.card .stt.won{background:rgba(229,185,60,.14);border:1px solid rgba(229,185,60,.34)}
+.card .stt.won em{color:var(--gold)}
+.card .stt.won em::before{content:"★ "}
+.card.cdead{opacity:.62}
+.card.cdead .pt,.card.cdead .nm{color:var(--ink-dim)}
+.rt td.rtst{font-size:11px;color:var(--ink-dim);white-space:nowrap}
+.rt td.rtst b{font-weight:700}
+.rt td.rtst b.in{color:#8FB89A}
+.rt td.rtst b.out{color:#e08585}
+.rt td.rtst b.top{color:var(--gold)}
 
 /* 出場校の詳細パネル */
 .tname{
@@ -1214,13 +1230,24 @@ function renderBoard(){
 const ORD = ["1位","2位","3位"];
 function renderStandings(){
   const {totals, topPt} = STATE;
+  const R = remainingMax();
+  const noOne = totals.slice(1).every(q=>r1(topPt - q.pt) > R.total);
   document.getElementById("standings").innerHTML = totals.map((p,i)=>{
     const gap = r1(topPt - p.pt);
     const last = i===totals.length-1 && gap>0;
-    return `<div class="card" style="--accent:${p.color}">
+    const dead = gap > 0 && gap > R.total;
+    const won  = gap === 0 && (R.remain === 0 || noOne);
+    let stat = "";
+    if(dead) stat = `<div class="stt out"><em>総合優勝の可能性なし</em>
+      <span>残りを全部取っても <b>${r1(gap - R.total)}</b> pt足りません</span></div>`;
+    else if(won) stat = `<div class="stt won"><em>${
+      R.remain===0 ? "総合優勝" : "総合優勝が確定"}</em>
+      <span>note記事の執筆者が決まりました</span></div>`;
+    return `<div class="card${dead?" cdead":""}${won?" cwon":""}" style="--accent:${p.color}">
       <div class="ord">${ORD[i]}</div><div class="nm">${p.name}</div>
       <div class="pt">${p.pt}<small>pt</small></div>
       <div class="gap">${gap===0?"首位":`首位まで <b>${gap}</b> pt`}</div>
+      ${stat}
       <div class="pay">${last?`現時点の精算 <b>¥${(gap*RATE).toLocaleString()}</b> → ${totals[0].name}`:"&nbsp;"}</div>
     </div>`;
   }).join("");
@@ -1471,8 +1498,9 @@ function renderRankTable(){
   });
   rows.sort((a,b)=>b.pt-a.pt);
   const top = rows[0] ? rows[0].pt : 0;
+  const RM = remainingMax();
   box.innerHTML = `<table class="rt"><thead><tr>
-      <th>順</th><th class="l">名前</th><th>pt</th><th>差</th><th>的中</th><th>勝率</th><th>全的中</th><th>全外し</th><th class="l">直近5</th>
+      <th>順</th><th class="l">名前</th><th>pt</th><th>差</th><th>的中</th><th>勝率</th><th>全的中</th><th>全外し</th><th class="l">直近5</th><th class="l">状況</th>
     </tr></thead><tbody>${rows.map((r,i)=>{
       const n = r.hit + r.miss;
       const pct = n ? (r.hit/n) : 0;
@@ -1487,6 +1515,11 @@ function renderRankTable(){
         <td class="${r.perfect?"gd":""}">${r.perfect}</td>
         <td class="${r.zero?"bd":""}">${r.zero}</td>
         <td class="l rtseq">${r.seq.slice(-5).map(h=>`<i class="${h?"o":"x"}">${h?"○":"✕"}</i>`).join("")}</td>
+        <td class="l rtst">${
+          i===0 ? (RM.remain===0 || rows.slice(1).every(q=>r1(top-q.pt)>RM.total)
+                    ? `<b class="top">優勝確定</b>` : "—")
+          : gap > RM.total ? `<b class="out">優勝なし</b>`
+          : "—"}</td>
       </tr>`;
     }).join("")}</tbody></table>`;
 }
