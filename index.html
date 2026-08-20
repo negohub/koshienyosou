@@ -586,6 +586,8 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:11px;
 .vgo{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;border-radius:50%;background:var(--crimson);color:#fff;font-size:8.5px;padding-left:2px;flex:none}
 .vlink:hover .vgo{background:var(--gold);color:#1b1006}
 .gtag{font-family:var(--min);font-size:11.5px;letter-spacing:.1em;line-height:1.6;color:#fff;background:var(--crimson);padding:4px 13px}
+.gtag .sn{text-indent:0}
+.gtag .sn:not(:first-child){padding-left:1em}
 .row{display:flex;align-items:center;gap:11px;padding:11px 13px}
 .row + .row{border-top:1px solid rgba(243,239,226,.09)}
 .pref{
@@ -1134,7 +1136,7 @@ const DAYS = [
  {d:"8/19", rest:true},
  {d:"8/20", nth:"第14日", bonus:{"畑山":2}, games:[{t:"8:00", r:"準決勝", a:"智辯和歌山", b:"横浜", oa:2.1, ob:1.9, s:[7,1], picks:{"根来":"智辯和歌山","今井":"横浜","畑山":"智辯和歌山"}, bets:{"根来":3,"今井":1,"畑山":2}, hits:["根来","畑山"], tag:"楠本の3ランなどで織田を2回1/3でKO。智辯が決勝へ"},{t:"10:30", r:"準決勝", a:"天理", b:"健大高崎", oa:1.8, ob:2.3, s:[0,1], picks:{"根来":"天理","今井":"健大高崎","畑山":"健大高崎"}, bets:{"根来":1,"今井":3,"畑山":2}, hits:["今井","畑山"], tag:"初回の1点を4投手で守り切り、健大高崎が初の決勝へ"}]},
  {d:"8/21", rest:true},
- {d:"8/22", nth:"第15日", final:true, now:true, games:[{t:"10:00", r:"決勝", from:[["8/20",0],["8/20",1]], oa:1.5, ob:2.9, tag:"打の智辯和歌山と、4試合で3失点の健大高崎。初優勝がかかる"}]}
+ {d:"8/22", nth:"第15日", final:true, now:true, games:[{t:"10:00", r:"決勝", from:[["8/20",0],["8/20",1]], oa:1.5, ob:2.9, tag:"打ち勝つ智辯和歌山か、守り抜く健大高崎か。4試合27得点と、5試合2失点の真っ向勝負。智辯和歌山は2021年以来5年ぶりの夏制覇へ。健大高崎は夏初の頂点に挑む。この一戦で2026年の夏が終わる。"}]}
 ];
 
 /* ---------- 共通 ---------- */
@@ -2170,7 +2172,7 @@ function gameCard(g,i,done,date){
   const roundTag = roundCls ? `<span class="rmark ${roundCls}">${g.r}</span>` : "";
   return `<div class="g ${g.a?"":"tbd"} ${g.void?"void":""} ${roundCls}">
     <div class="gh"><span class="no">第${i+1}試合${roundCls?"":`　${g.r||""}`}</span><span class="tm">${g.t}</span></div>
-    ${g.tag?`<div class="gtag">★${g.tag}</div>`:""}
+    ${g.tag?`<div class="gtag">★${sent(g.tag)}</div>`:""}
     ${g.s ? videoLink(date, i) : ""}
     ${roundTag}${rows}${stats}${hits}
   </div>`;
