@@ -588,6 +588,15 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:11px;
 .gtag{font-family:var(--min);font-size:11.5px;letter-spacing:.1em;line-height:1.6;color:#fff;background:var(--crimson);padding:4px 13px}
 .gtag .sn{text-indent:0}
 .gtag .sn:not(:first-child){padding-left:1em}
+details.fold{margin-top:10px}
+details.fold>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:7px;
+  font-size:12px;letter-spacing:.06em;color:var(--ink-dim);border:1px solid var(--line);
+  border-radius:999px;padding:5px 14px;background:rgba(243,239,226,.02)}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary::before{content:"＋";font-size:11px;color:var(--clay)}
+details.fold[open]>summary::before{content:"−"}
+details.fold>summary:hover,details.fold>summary:focus-visible{color:var(--ink);border-color:rgba(180,98,44,.6)}
+details.fold .foldb{margin-top:12px}
 .row{display:flex;align-items:center;gap:11px;padding:11px 13px}
 .row + .row{border-top:1px solid rgba(243,239,226,.09)}
 .pref{
@@ -849,18 +858,24 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   </section>
   <section class="reveal" id="nav-teams">
     <div class="head"><h2>出場校 戦力一覧</h2><em id="teamCount"></em></div>
-    <div class="tablewrap" id="teams"></div>
-    <p class="fine" style="margin:8px 2px 0;font-size:11.5px;color:var(--ink-dim)">見出しをタップで並び替え／校名をタップでそのチームの詳細</p>
+    <details class="fold"><summary>49校の一覧を開く</summary>
+    <div class="foldb">    <div class="tablewrap" id="teams"></div>
+    <p class="fine" style="margin:8px 2px 0;font-size:11.5px;color:var(--ink-dim)">見出しをタップで並び替え／校名をタップでそのチームの詳細</p></div>
+    </details>
   </section>
   <section class="reveal" id="nav-records">
     <div class="head"><h2>記録室</h2><em>Record Book</em></div>
-    <p class="hint"><span class="sn">全試合の的中データから自動計算しています。</span><span class="sn">第2回大会の比較対象になります。</span></p>
-    <div id="records"></div>
+    <details class="fold"><summary>記録の一覧を開く</summary>
+    <div class="foldb">    <p class="hint"><span class="sn">全試合の的中データから自動計算しています。</span><span class="sn">第2回大会の比較対象になります。</span></p>
+    <div id="records"></div></div>
+    </details>
   </section>
   <section class="reveal" id="nav-upsets">
     <div class="head"><h2>大穴的中</h2><em>Big Hits</em></div>
-    <div class="upsets" id="upsets"></div>
-    <p class="fine" style="margin:9px 2px 0;font-size:11.5px;color:var(--ink-dim)">オッズが高い側（対抗）を当てた試合を、倍率の高い順に表示</p>
+    <details class="fold"><summary>大穴的中の一覧を開く</summary>
+    <div class="foldb">    <div class="upsets" id="upsets"></div>
+    <p class="fine" style="margin:9px 2px 0;font-size:11.5px;color:var(--ink-dim)">オッズが高い側（対抗）を当てた試合を、倍率の高い順に表示</p></div>
+    </details>
   </section>
   <section class="reveal" id="nav-chart">
     <div class="head"><h2>得点推移</h2><em>Cumulative</em></div>
@@ -875,17 +890,22 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   </section>
   <section class="reveal" id="trendsWrap" style="display:none">
     <div class="head"><h2>勝敗の傾向</h2><em>Round Trends</em></div>
-    <div class="trendbox" id="trends"></div>
-    <p class="fine" style="margin:9px 2px 0;font-size:11px;color:var(--ink-dim)">回戦ごとに、その試合のオッズで本命だった方／平均失点が少ない方が、実際どれだけ勝っているかを集計</p>
+    <details class="fold"><summary>傾向の分析を開く</summary>
+    <div class="foldb">    <div class="trendbox" id="trends"></div>
+    <p class="fine" style="margin:9px 2px 0;font-size:11px;color:var(--ink-dim)">回戦ごとに、その試合のオッズで本命だった方／平均失点が少ない方が、実際どれだけ勝っているかを集計</p></div>
+    </details>
   </section>
   <section class="reveal" id="nav-songs">
     <div class="head"><h2>テーマソング</h2><em>Theme Songs</em></div>
-    <p class="hint">OPとEDが同じ曲に統一された2009年以降の「熱闘甲子園」テーマソング。</p>
-    <div id="songs"></div>
+    <details class="fold"><summary>2009年以降の一覧を開く</summary>
+    <div class="foldb">    <p class="hint">OPとEDが同じ曲に統一された2009年以降の「熱闘甲子園」テーマソング。</p>
+    <div id="songs"></div></div>
+    </details>
   </section>
   <section class="reveal" id="nav-rules">
     <div class="head"><h2>大会規定</h2><em>Rules</em></div>
-    <div class="rules">
+    <details class="fold"><summary>ルール全文を開く</summary>
+    <div class="foldb">    <div class="rules">
       <div class="rulebox">
         <h3>得点</h3>
         <ul>
@@ -932,7 +952,8 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
         </ul>
         <p class="fine"><span class="sn">※レートは進捗に応じて変更。</span><span class="sn">ベスト8時点で調整。</span><span class="sn">優勝予想が全員外れていた場合も同時点で見直し。</span></p>
       </div>
-    </div>
+    </div></div>
+    </details>
   </section>
 
   <footer><span>熱　覇</span><span id="updated"></span></footer>
@@ -1607,6 +1628,19 @@ const WEATHER = {
  "8/22":{icon:"⛅",text:"曇時々晴",hi:34,lo:27,pop:30,low_conf:true},
 };
 /* ---------- 予想入力（端末内に保存） ---------- */
+/* ナビから飛んだ先が折りたたまれていたら開く */
+function openFoldAt(id){
+  const sec = document.getElementById(id);
+  if(!sec) return;
+  sec.querySelectorAll("details.fold").forEach(d=>d.open = true);
+}
+document.addEventListener("click", e=>{
+  const a = e.target.closest('a[href^="#"]');
+  if(a) openFoldAt(a.getAttribute("href").slice(1));
+}, true);
+window.addEventListener("hashchange", ()=>openFoldAt(location.hash.slice(1)));
+if(location.hash) openFoldAt(location.hash.slice(1));
+
 const PRED_KEY = "koshien_pred_v1";
 let PRED = (function(){
   try{ return JSON.parse(localStorage.getItem(PRED_KEY) || "{}"); }catch(e){ return {}; }
