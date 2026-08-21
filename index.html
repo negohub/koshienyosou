@@ -157,8 +157,8 @@ section{margin-top:76px}
   box-shadow:0 16px 38px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.04);
 }
 .lineup .lulabel{
-  font-family:var(--min);font-size:11px;letter-spacing:.3em;text-indent:.3em;
-  color:rgba(var(--lime),.5);padding-bottom:8px;border-bottom:1px solid rgba(var(--lime),.28);
+  font-family:var(--min);font-weight:700;font-size:11.5px;letter-spacing:.3em;text-indent:.3em;
+  color:rgba(var(--lime),.66);padding-bottom:8px;border-bottom:2px solid rgba(var(--lime),.5);
 }
 .entrants{display:flex;justify-content:center;gap:clamp(22px,9vw,64px);padding-top:14px}
 .entrants b{
@@ -183,24 +183,24 @@ section{margin-top:76px}
   box-shadow:0 16px 38px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.04);
 }
 .navboard .lulabel{
-  font-family:var(--min);font-size:11px;letter-spacing:.3em;text-indent:.3em;
-  color:rgba(var(--lime),.5);padding-bottom:8px;border-bottom:1px solid rgba(var(--lime),.28);
+  font-family:var(--min);font-weight:700;font-size:11.5px;letter-spacing:.3em;text-indent:.3em;
+  color:rgba(var(--lime),.66);padding-bottom:8px;border-bottom:2px solid rgba(var(--lime),.5);
 }
 .secnav{display:grid;grid-template-columns:repeat(5,1fr);padding-top:4px}
 .secnav a{
-  font-family:var(--min);font-size:clamp(11.5px,3.1vw,13.5px);letter-spacing:.1em;
-  color:rgba(243,239,226,.72);padding:9px 2px;text-decoration:none;white-space:nowrap;
+  font-family:var(--min);font-weight:700;font-size:clamp(12px,3.2vw,14px);letter-spacing:.12em;
+  color:rgba(243,239,226,.88);padding:10px 2px;text-decoration:none;white-space:nowrap;
   text-align:center;position:relative;transition:color .18s;
 }
 .secnav a:not(:nth-last-child(-n+5))::after{
-  content:"";position:absolute;left:6%;right:6%;bottom:0;height:1px;background:rgba(var(--lime),.12);
+  content:"";position:absolute;left:5%;right:5%;bottom:0;height:2px;background:rgba(var(--lime),.3);
 }
 .secnav a:hover,.secnav a:focus-visible{color:#fff}
 .secnav a.hot{color:#fff;font-weight:700}
 .secnav a.hot::before{content:"";position:absolute;left:14%;right:14%;top:2px;height:2px;
   background:var(--red);box-shadow:0 0 8px var(--red);animation:beat 2.4s ease-in-out infinite}
 @media(max-width:420px){.secnav{grid-template-columns:repeat(4,1fr)}
-  .secnav a:not(:nth-last-child(-n+4))::after{content:"";position:absolute;left:6%;right:6%;bottom:0;height:1px;background:rgba(var(--lime),.12)}}
+  .secnav a:not(:nth-last-child(-n+4))::after{content:"";position:absolute;left:5%;right:5%;bottom:0;height:2px;background:rgba(var(--lime),.3)}}
 section[id^="nav-"], #trendsWrap{scroll-margin-top:18px}
 #board{scroll-margin-top:18px}
 .jump{
@@ -668,8 +668,9 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:11px;
 .vgo{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;border-radius:50%;background:var(--crimson);color:#fff;font-size:8.5px;padding-left:2px;flex:none}
 .vlink:hover .vgo{background:var(--gold);color:#1b1006}
 .gtag{font-family:var(--min);font-size:11.5px;letter-spacing:.1em;line-height:1.6;color:#fff;background:var(--crimson);padding:4px 13px}
-.gtag .sn{text-indent:0}
-.gtag .sn:not(:first-child){padding-left:1em}
+.gtag .sn{display:block;padding-left:1.5em;text-indent:0}
+.gtag .sn:first-child{text-indent:-1.5em}
+.gtag .sn:first-child::before{content:"★";margin-right:.45em}
 details.fold{margin-top:10px}
 details.fold>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:7px;
   font-size:12px;letter-spacing:.06em;color:var(--ink-dim);border:1px solid var(--line);
@@ -814,6 +815,54 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   .animate .plate,.animate .dash{animation:none}
   .dash{stroke-dashoffset:0}
 }
+
+/* ── 決勝：深紅の大優勝旗をモチーフにした特別扱い ── */
+.day.final{
+  position:relative;isolation:isolate;overflow:hidden;
+  border:1px solid rgba(229,185,60,.55);border-left-width:3px;border-left-color:var(--crimson);
+  background:linear-gradient(165deg, rgba(142,18,32,.34) 0%, rgba(142,18,32,.14) 46%, rgba(0,0,0,.30) 100%);
+  box-shadow:0 0 0 1px rgba(142,18,32,.35), 0 22px 54px rgba(0,0,0,.55);
+  animation:finalGlow 4.6s ease-in-out infinite;
+}
+/* 優勝旗の旭光 */
+.day.final::before{
+  content:"";position:absolute;left:50%;top:-6%;width:230%;aspect-ratio:1;z-index:-1;
+  transform:translateX(-50%);pointer-events:none;
+  background:repeating-conic-gradient(from -90deg at 50% 0%,
+    rgba(229,185,60,.13) 0deg 3.4deg, transparent 3.4deg 11deg);
+  -webkit-mask-image:radial-gradient(closest-side at 50% 0%, #000 12%, rgba(0,0,0,.55) 46%, transparent 76%);
+  mask-image:radial-gradient(closest-side at 50% 0%, #000 12%, rgba(0,0,0,.55) 46%, transparent 76%);
+  animation:rays 68s linear infinite;
+}
+@keyframes rays{to{transform:translateX(-50%) rotate(360deg)}}
+@keyframes finalGlow{
+  0%,100%{box-shadow:0 0 0 1px rgba(142,18,32,.35), 0 22px 54px rgba(0,0,0,.55)}
+  50%{box-shadow:0 0 0 1px rgba(229,185,60,.5), 0 22px 62px rgba(142,18,32,.4)}
+}
+.day.final .dayhead .rd.f{
+  font-size:14px;letter-spacing:.24em;text-indent:.24em;padding:4px 14px;
+  background:linear-gradient(180deg,#A8172A,var(--crimson));
+  border-color:var(--gold);box-shadow:0 0 14px rgba(142,18,32,.6);
+}
+.day.final .g{
+  border-color:var(--gold);
+  background:linear-gradient(180deg, rgba(142,18,32,.30), rgba(0,0,0,.34));
+  box-shadow:inset 0 0 0 1px rgba(229,185,60,.18);
+}
+.day.final .rmark.gf{
+  background:linear-gradient(180deg,var(--gold),#C99A22);color:#2A0A0F;
+  box-shadow:0 0 12px rgba(229,185,60,.45)}
+.day.final .gtag{
+  background:linear-gradient(180deg,#A8172A,#6E0E19);
+  box-shadow:inset 0 0 0 1px rgba(229,185,60,.3), 0 6px 18px rgba(0,0,0,.45);
+  padding:8px 15px;
+}
+.day.final .flagnote{
+  display:inline-block;font-weight:700;color:var(--gold);
+  border:1px solid rgba(229,185,60,.5);padding:4px 14px;margin-top:12px;
+  letter-spacing:.2em;text-indent:.2em;background:rgba(142,18,32,.28);
+}
+.day.final .flagnote::before{content:"🏳 ";filter:grayscale(1) brightness(2);opacity:.8}
 </style>
 </head>
 <body>
@@ -2324,7 +2373,7 @@ function gameCard(g,i,done,date){
   const roundTag = roundCls ? `<span class="rmark ${roundCls}">${g.r}</span>` : "";
   return `<div class="g ${g.a?"":"tbd"} ${g.void?"void":""} ${roundCls}">
     <div class="gh"><span class="no">第${i+1}試合${roundCls?"":`　${g.r||""}`}</span><span class="tm">${g.t}</span></div>
-    ${g.tag?`<div class="gtag">★${sent(g.tag)}</div>`:""}
+    ${g.tag?`<div class="gtag">${sent(g.tag)}</div>`:""}
     ${g.s ? videoLink(date, i) : ""}
     ${roundTag}${rows}${stats}${hits}
   </div>`;
