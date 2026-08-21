@@ -1083,8 +1083,10 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
         <ul>
           <li>締切は<b>試合日の0時</b>。日付が変われば、その日の予想は入力・変更できない</li>
           <li>前日の夜までに入力しておくこと</li>
+          <li><b>締切までに投票しなかった場合は −15pt</b>。その日の試合数にかかわらず1回</li>
           <li>ポイントベット制の日は1日の持ち点を配分するため、途中経過を見てからの賭け直しを防ぐ目的もある</li>
         </ul>
+        <p class="fine"><span class="sn">※未投票ペナルティは決勝（8/22）から適用。</span><span class="sn">それ以前の日には遡らない。</span></p>
       </div>
       <div class="rulebox">
         <h3>報酬</h3>
@@ -1301,7 +1303,7 @@ const DAYS = [
  {d:"8/19", rest:true},
  {d:"8/20", nth:"第14日", bonus:{"畑山":2}, games:[{t:"8:00", r:"準決勝", a:"智辯和歌山", b:"横浜", oa:2.1, ob:1.9, s:[7,1], picks:{"根来":"智辯和歌山","今井":"横浜","畑山":"智辯和歌山"}, bets:{"根来":3,"今井":1,"畑山":2}, hits:["根来","畑山"], tag:"楠本の3ランなどで織田を2回1/3でKO。智辯が決勝へ"},{t:"10:30", r:"準決勝", a:"天理", b:"健大高崎", oa:1.8, ob:2.3, s:[0,1], picks:{"根来":"天理","今井":"健大高崎","畑山":"健大高崎"}, bets:{"根来":1,"今井":3,"畑山":2}, hits:["今井","畑山"], tag:"初回の1点を4投手で守り切り、健大高崎が初の決勝へ"}]},
  {d:"8/21", rest:true},
- {d:"8/22", nth:"第15日", final:true, now:true, games:[{t:"10:00", r:"決勝", from:[["8/20",0],["8/20",1]], oa:1.5, ob:2.9, picks:{"根来":"智辯和歌山","畑山":"智辯和歌山"}, tag:"打ち勝つ智辯和歌山か、守り抜く健大高崎か。4試合27得点と、5試合2失点の真っ向勝負。智辯和歌山は2021年以来5年ぶりの夏制覇へ。健大高崎は夏初の頂点に挑む。この一戦で2026年の夏が終わる。"}]}
+ {d:"8/22", nth:"第15日", final:true, now:true, novote:["今井"], games:[{t:"10:00", r:"決勝", from:[["8/20",0],["8/20",1]], oa:1.5, ob:2.9, picks:{"根来":"智辯和歌山","畑山":"智辯和歌山"}, tag:"打ち勝つ智辯和歌山か、守り抜く健大高崎か。4試合27得点と、5試合2失点の真っ向勝負。智辯和歌山は2021年以来5年ぶりの夏制覇へ。健大高崎は夏初の頂点に挑む。この一戦で2026年の夏が終わる。"}]}
 ];
 
 /* ---------- 共通 ---------- */
@@ -1309,6 +1311,7 @@ const r1 = n => Math.round(n*10)/10;
 const byDate = d => DAYS.find(x=>x.d===d);
 /* ポイントベット制：準々決勝・準決勝のみ、持ち点を各試合に配分する */
 const BET_BUDGET = {"準々決勝":8, "準決勝":4};
+const NOVOTE_PT = -15;   /* 締切までに予想を出さなかった場合 */;
 const winnerOf = g => !g ? null : (g.s ? (g.s[0]>g.s[1]?0:1) : (g.w===undefined?null:g.w));
 const winnerName = g => { const w=winnerOf(g); return w===null?null:(w===0?g.a:g.b); };
 
@@ -1336,7 +1339,7 @@ let STATE = {};
 function compute(sheet){
   const daily={}, cum={}, run={};
   PLAYERS.forEach(p=>{daily[p.name]=[];cum[p.name]=[];run[p.name]=0;});
-  let played = scoredDays.filter(d=>(d.games||[]).some(g=>winnerOf(g)!==null));
+  let played = scoredDays.filter(d=>(d.games||[]).some(g=>winnerOf(g)!==null) || (d.novote||[]).length);
   if(sheet && sheet.dates.length){
     played = scoredDays.filter(d=>sheet.dates.indexOf(d.d) > -1 && sheet.dates.indexOf(d.d) < sheet.count);
   }
@@ -1355,6 +1358,7 @@ function compute(sheet){
           }
         });
         s += ((d.bonus||{})[p.name]||0);
+        if((d.novote||[]).includes(p.name)) s += NOVOTE_PT;
       }
       s = r1(s);
       daily[p.name].push(s);
@@ -1466,6 +1470,7 @@ function renderRecords(){
       const hits = gs.filter(g=>(g.hits||[]).includes(r.name)).length;
       if(hits === gs.length) r.perfect++; else if(hits === 0) r.zero++;
       if(d.bonus && d.bonus[r.name]) pt += d.bonus[r.name];
+      if((d.novote||[]).includes(r.name)) pt += NOVOTE_PT;
       pt = r1(pt);
       if(!r.dayBest  || pt > r.dayBest.pt)  r.dayBest  = {pt, date:d.d};
       if(!r.dayWorst || pt < r.dayWorst.pt) r.dayWorst = {pt, date:d.d};
@@ -1653,7 +1658,7 @@ function renderPostOrder(){
 function renderRankTable(){
   const box = document.getElementById("ranktable");
   if(!box) return;
-  const rows = PLAYERS.map(p=>({name:p.name, color:p.color, pt:0, hit:0, miss:0, perfect:0, zero:0, seq:[]}));
+  const rows = PLAYERS.map(p=>({name:p.name, color:p.color, pt:0, hit:0, miss:0, perfect:0, zero:0, pen:0, seq:[]}));
   const by = {}; rows.forEach(r=>by[r.name]=r);
   DAYS.forEach(d=>{
     /* その日の全試合が終わっている日だけ、全的中／全外しを数える */
@@ -1677,12 +1682,13 @@ function renderRankTable(){
       });
     });
     if(d.bonus) for(const k in d.bonus) if(by[k]) by[k].pt += d.bonus[k];
+    (d.novote||[]).forEach(k=>{ if(by[k]){ by[k].pt += NOVOTE_PT; by[k].pen += NOVOTE_PT; } });
   });
   rows.sort((a,b)=>b.pt-a.pt);
   const top = rows[0] ? rows[0].pt : 0;
   const RM = remainingMax();
   box.innerHTML = `<table class="rt"><thead><tr>
-      <th>順</th><th class="l">名前</th><th>pt</th><th>差</th><th>的中</th><th>勝率</th><th>全的中</th><th>全外し</th><th class="l">直近5</th><th class="l">状況</th>
+      <th>順</th><th class="l">名前</th><th>pt</th><th>差</th><th>的中</th><th>勝率</th><th>全的中</th><th>全外し</th><th>罰則</th><th class="l">直近5</th><th class="l">状況</th>
     </tr></thead><tbody>${rows.map((r,i)=>{
       const n = r.hit + r.miss;
       const pct = n ? (r.hit/n) : 0;
@@ -1696,6 +1702,7 @@ function renderRankTable(){
         <td>${pct.toFixed(3).replace(/^0/,"")}</td>
         <td class="${r.perfect?"gd":""}">${r.perfect}</td>
         <td class="${r.zero?"bd":""}">${r.zero}</td>
+        <td class="${r.pen?"bd":""}">${r.pen?r.pen:"—"}</td>
         <td class="l rtseq">${r.seq.slice(-5).map(h=>`<i class="${h?"o":"x"}">${h?"○":"✕"}</i>`).join("")}</td>
         <td class="l rtst">${
           i===0 ? (RM.remain===0 || rows.slice(1).every(q=>r1(top-q.pt)>RM.total)
@@ -2412,7 +2419,9 @@ function renderTimeline(){
     const rounds = [...new Set(d.games.map(g=>g.r).filter(Boolean))].join("・");
     const rdCls = d.final ? "f" : rounds.includes("準々決勝") ? "qf" : rounds.includes("準決勝") ? "sf" : "";
     const b = Object.entries(d.bonus||{}).map(([n,v])=>
-      `<div class="bonus ${v<0?"minus":""}">${v>0?"◎ 全試合的中":"▽ 全試合外し"}　${n} ${v>0?"+":""}${v}pt</div>`).join("");
+      `<div class="bonus ${v<0?"minus":""}">${v>0?"◎ 全試合的中":"▽ 全試合外し"}　${n} ${v>0?"+":""}${v}pt</div>`).join("")
+      + (d.novote||[]).map(n=>
+      `<div class="bonus minus">✕ 締切までに未投票　${n} ${NOVOTE_PT}pt</div>`).join("");
     const off = d.scored===false ? `<span class="nth">予想対象外</span>` : "";
     return `<article class="day ${d.final?"final":""} ${rdCls==="qf"?"qf-day":""} ${rdCls==="sf"?"sf-day":""} ${d.now?"now":(done?"done":"")}" ${d.d===anchor?'id="today-anchor"':""}>
       <div class="dayhead">
