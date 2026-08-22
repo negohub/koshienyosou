@@ -618,7 +618,7 @@ tr.lead th.who::after{content:"首位";font-family:var(--gothic);font-size:11px;
 @keyframes draw{to{stroke-dashoffset:0}}
 
 /* 日程 */
-.day{margin-bottom:26px;border-left:2px solid var(--line);padding-left:18px}
+.day{margin-bottom:26px;border-left:2px solid var(--line);padding:0 18px 0 18px}
 .day.now{border-left-color:var(--clay)}
 .day.done{border-left-color:rgba(243,239,226,.28)}
 .dayhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
@@ -804,7 +804,8 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   .plate{font-size:16px;line-height:32px;height:32px;min-width:36px}
   .plate.total{font-size:19px}
   .day{padding-left:13px}
-  .dayhead .tally{margin-left:0;width:100%;justify-content:space-between;gap:6px;font-size:12px}
+  .dayhead .tally{margin-left:0;width:100%;justify-content:space-between;gap:8px;font-size:12px;flex-wrap:wrap}
+  .dayhead .tally>*{white-space:nowrap}
   .nm2{font-size:15px}
   .card .pay{min-height:0}
   .secnav{gap:5px 4px;margin-top:18px;max-width:100%}
@@ -819,6 +820,7 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
 /* ── 決勝：深紅の大優勝旗をモチーフにした特別扱い ── */
 .day.final{
   position:relative;isolation:isolate;overflow:hidden;
+  padding:16px 18px;
   border:1px solid rgba(229,185,60,.55);border-left-width:3px;border-left-color:var(--crimson);
   background:linear-gradient(165deg, rgba(142,18,32,.34) 0%, rgba(142,18,32,.14) 46%, rgba(0,0,0,.30) 100%);
   box-shadow:0 0 0 1px rgba(142,18,32,.35), 0 22px 54px rgba(0,0,0,.55);
@@ -988,7 +990,7 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   <div class="lampwrap"><a class="lamp" id="lamp" href="#today-anchor"></a></div>
   <div class="navboard">
   <div class="lulabel">目次</div>
-  <nav class="secnav" id="secnav">
+  <nav class="secnav">
     <a href="#nav-board">戦況</a><a href="#nav-standings">順位</a><a href="#nav-personal">個人成績</a>
     <a href="#nav-champions">優勝予想</a>
     <a href="#nav-predict">予想</a><a href="#nav-bets">采配</a><a href="#nav-schedule">日程</a><a href="#nav-teams">出場校</a>
@@ -2683,11 +2685,6 @@ function updateTitle(){
 function updateJumpLink(){
   updateTitle();
   const today = DAYS.find(d=>d.now);
-  const nav = document.getElementById("navToday");
-  if(nav){
-    if(today){ nav.textContent = `本日 ${today.d}`; nav.style.display = ""; }
-    else nav.style.display = "none";
-  }
   const trendsNav = document.getElementById("navTrends");
   if(trendsNav){
     trendsNav.style.display = document.getElementById("trendsWrap").style.display === "none" ? "none" : "";
