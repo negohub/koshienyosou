@@ -905,6 +905,8 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   color:rgba(243,239,226,.85)}
 .wu-pay b{color:var(--gold);font-family:var(--num);font-size:17px;margin:0 3px}
 .wu-pay span{display:block;font-size:11px;color:var(--ink-dim);margin-top:3px}
+.tr-head .tr-src{margin-left:auto;font-family:var(--min);font-size:10.5px;letter-spacing:.08em;
+  color:var(--ink-dim);border:1px solid var(--line);border-radius:999px;padding:2px 9px;white-space:nowrap}
 .wu-text{margin-top:16px;padding-top:14px;border-top:1px solid rgba(229,185,60,.28);
   font-family:var(--min);font-size:12.5px;line-height:2;color:rgba(243,239,226,.82)}
 .wu-text p{margin:0 0 .9em;text-align:justify;text-justify:inter-character}
@@ -1086,7 +1088,7 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
     <div class="head"><h2>勝敗の傾向</h2><em>Round Trends</em></div>
     <details class="fold"><summary>傾向の分析を開く</summary>
     <div class="foldb">    <div class="trendbox" id="trends"></div>
-    <p class="fine" style="margin:9px 2px 0;font-size:11px;color:var(--ink-dim)">回戦ごとに、その試合のオッズで本命だった方／平均失点が少ない方が、実際どれだけ勝っているかを集計</p></div>
+    <p class="fine" style="margin:9px 2px 0;font-size:11px;color:var(--ink-dim)">回戦ごとに、その試合のオッズで本命だった方／平均失点が少ない方／平均得点が多い方が、実際どれだけ勝っているかを集計。3回戦までは地方大会、準々決勝以降はその試合までの甲子園の成績を使用</p></div>
     </details>
   </section>
   <section class="reveal" id="nav-songs">
@@ -2695,6 +2697,23 @@ function safe(name, fn){ try{ fn(); }catch(e){ console.error("render failed:", n
 
 /* ---------- 回戦別 勝敗傾向 ---------- */
 function renderTrends(){
+  /* 準々決勝以降は甲子園の成績（その試合の直前まで）で判定する。
+     地方大会は県間の難易度差が補正できないため、後半では使わない */
+  const LATE = {"準々決勝":1, "準決勝":1, "決勝":1};
+  const flat = [];
+  DAYS.forEach(day=>(day.games||[]).forEach(g=>{
+    if(g.void || !g.s || !g.a || !g.b) return;
+    flat.push(g);
+  }));
+  function koshienAvg(team, upto){
+    let rs = 0, ra = 0, n = 0;
+    for(const x of flat){
+      if(x === upto) break;
+      if(x.a === team){ rs += x.s[0]; ra += x.s[1]; n++; }
+      else if(x.b === team){ rs += x.s[1]; ra += x.s[0]; n++; }
+    }
+    return n ? {rs: rs/n, ra: ra/n} : null;
+  }
   const rounds = {};
   DAYS.forEach(day=>{
     (day.games||[]).forEach(g=>{
@@ -2710,13 +2729,20 @@ function renderTrends(){
         if((g.oa<g.ob ? g.a : g.b) === winnerName) r.favWin++;
       }
       const ta=T[g.a], tb=T[g.b];
-      if(ta && tb && ta[3] && tb[3]){
-        r.eraTotal++;
-        if((parseFloat(ta[3])<parseFloat(tb[3]) ? g.a : g.b) === winnerName) r.eraWin++;
+      let ra_a=null, ra_b=null, rs_a=null, rs_b=null;
+      if(LATE[key]){
+        const ka = koshienAvg(g.a, g), kb = koshienAvg(g.b, g);
+        if(ka && kb){ ra_a=ka.ra; ra_b=kb.ra; rs_a=ka.rs; rs_b=kb.rs; r.late = true; }
       }
-      if(ta && tb && ta[4] && tb[4]){
+      if(ra_a===null && ta && tb && ta[3] && tb[3]){ ra_a=parseFloat(ta[3]); ra_b=parseFloat(tb[3]); }
+      if(rs_a===null && ta && tb && ta[4] && tb[4]){ rs_a=parseFloat(ta[4]); rs_b=parseFloat(tb[4]); }
+      if(ra_a!==null && ra_b!==null && ra_a!==ra_b){
+        r.eraTotal++;
+        if((ra_a < ra_b ? g.a : g.b) === winnerName) r.eraWin++;
+      }
+      if(rs_a!==null && rs_b!==null && rs_a!==rs_b){
         r.runsTotal++;
-        if((parseFloat(ta[4])>parseFloat(tb[4]) ? g.a : g.b) === winnerName) r.runsWin++;
+        if((rs_a > rs_b ? g.a : g.b) === winnerName) r.runsWin++;
       }
     });
   });
@@ -2730,7 +2756,8 @@ function renderTrends(){
     const r = rounds[k];
     const favP = pct(r.favWin,r.favTotal), eraP = pct(r.eraWin,r.eraTotal), runsP = pct(r.runsWin,r.runsTotal);
     return `<div class="tr-card">
-      <div class="tr-head"><span class="tr-round">${k}</span><span class="tr-n">${r.n}試合終了</span></div>
+      <div class="tr-head"><span class="tr-round">${k}</span><span class="tr-n">${r.n}試合終了</span>
+        <span class="tr-src">${r.late?"甲子園の成績で判定":"地方大会の成績で判定"}</span></div>
       <ul class="tr-list">
         <li>試合でオッズが低かった方が勝った勝敗：<b>${r.favWin}勝${r.favTotal-r.favWin}敗</b>（${favP??"—"}%）</li>
         <li>平均失点が少ない方が勝った試合：<b>${r.eraWin}勝${r.eraTotal-r.eraWin}敗</b>（${eraP??"—"}%）</li>
