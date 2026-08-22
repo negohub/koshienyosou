@@ -863,6 +863,54 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
   letter-spacing:.2em;text-indent:.2em;background:rgba(142,18,32,.28);
 }
 .day.final .flagnote::before{content:"🏳 ";filter:grayscale(1) brightness(2);opacity:.8}
+
+/* ── 総括（全日程終了後にトップへ出る） ── */
+.wu{
+  position:relative;overflow:hidden;max-width:600px;margin:22px auto 0;
+  border:1px solid rgba(229,185,60,.55);
+  background:linear-gradient(165deg,rgba(142,18,32,.42) 0%,rgba(142,18,32,.18) 50%,rgba(0,0,0,.42) 100%);
+  box-shadow:0 24px 58px rgba(0,0,0,.6), inset 0 0 0 1px rgba(229,185,60,.16);
+  padding:20px 18px 18px;
+}
+.wu::before{
+  content:"";position:absolute;left:50%;top:-8%;width:220%;aspect-ratio:1;z-index:-1;
+  transform:translateX(-50%);pointer-events:none;
+  background:repeating-conic-gradient(from -90deg at 50% 0%,
+    rgba(229,185,60,.14) 0deg 3.4deg, transparent 3.4deg 11deg);
+  -webkit-mask-image:radial-gradient(closest-side at 50% 0%,#000 12%,rgba(0,0,0,.5) 46%,transparent 76%);
+  mask-image:radial-gradient(closest-side at 50% 0%,#000 12%,rgba(0,0,0,.5) 46%,transparent 76%);
+  animation:rays 68s linear infinite;
+}
+.wu-cap{font-family:var(--min);font-size:11.5px;letter-spacing:.3em;text-indent:.3em;
+  color:rgba(229,185,60,.75);text-align:center}
+.wu-main{display:flex;align-items:baseline;justify-content:center;gap:12px;margin-top:12px;flex-wrap:wrap}
+.wu-main em{font-style:normal;font-family:var(--min);font-weight:700;font-size:12px;
+  letter-spacing:.24em;text-indent:.24em;color:var(--gold);
+  border:1px solid rgba(229,185,60,.5);padding:3px 12px}
+.wu-main b{font-family:var(--min);font-weight:800;font-size:clamp(28px,8vw,44px);letter-spacing:.1em}
+.wu-main i{font-style:normal;font-family:var(--num);font-size:clamp(20px,5.4vw,30px);color:#fff}
+.wu-main i small{font-size:.5em;margin-left:2px;opacity:.7}
+.wu-champ{text-align:center;font-family:var(--min);font-size:13px;letter-spacing:.14em;
+  color:rgba(243,239,226,.78);margin-top:6px}
+.wu-champ b{color:var(--gold);font-weight:700}
+.wu-tb{width:100%;border-collapse:collapse;margin-top:16px;
+  border-top:1px solid rgba(229,185,60,.32);border-bottom:1px solid rgba(229,185,60,.32)}
+.wu-tb th,.wu-tb td{padding:7px 4px;font-size:13px;border-bottom:1px solid rgba(243,239,226,.08)}
+.wu-tb tr:last-child th,.wu-tb tr:last-child td{border-bottom:none}
+.wu-tb th{font-family:var(--min);color:rgba(243,239,226,.6);width:2.6em;text-align:center;font-weight:500}
+.wu-tb .wu-nm{font-family:var(--min);font-weight:700;letter-spacing:.1em}
+.wu-tb .wu-pt{font-family:var(--num);text-align:right;color:#fff;font-size:15px}
+.wu-tb .wu-hit{font-family:var(--num);text-align:right;color:var(--ink-dim);font-size:12px;white-space:nowrap}
+.wu-pay{margin-top:14px;text-align:center;font-family:var(--min);font-size:13px;letter-spacing:.08em;
+  color:rgba(243,239,226,.85)}
+.wu-pay b{color:var(--gold);font-family:var(--num);font-size:17px;margin:0 3px}
+.wu-pay span{display:block;font-size:11px;color:var(--ink-dim);margin-top:3px}
+.wu-text{margin-top:16px;padding-top:14px;border-top:1px solid rgba(229,185,60,.28);
+  font-family:var(--min);font-size:12.5px;line-height:2;color:rgba(243,239,226,.82)}
+.wu-text p{margin:0 0 .9em;text-align:justify;text-justify:inter-character}
+.wu-text p:last-child{margin-bottom:0}
+.wu-note{margin-top:10px;text-align:center;font-family:var(--min);font-size:11.5px;
+  letter-spacing:.16em;color:rgba(229,185,60,.72)}
 </style>
 </head>
 <body>
@@ -929,6 +977,8 @@ footer span{font-family:var(--min);font-size:12px;letter-spacing:.24em;color:var
       </div>
     </div>
   </div>
+  <div id="wrapup"></div>
+
   <div class="lineup">
     <div class="lulabel">出場者</div>
     <div class="entrants"><b>畑山</b><b>根来</b><b>今井</b></div>
@@ -1205,7 +1255,7 @@ const CH = {
 const FORM = {
  "三重":["準々決勝：天理に0-7で敗戦","4投手をつないだが8回以降に5点を失う。9安打を放ちながら無得点、4失策が重くのしかかった。"],
  "履正社":["3回戦：三重に2-5で敗退","立ち上がりの2回で5点を失う苦しい展開。9安打を放つも終盤の反撃が2点止まりだった。"],
- "智辯和歌山":["準決勝：横浜に7-1で勝利","3回に楠本の3ランを含む4点を奪って織田を2回1/3でKO。7回にも3点を加え、和気が8回1失点で決勝進出を決めた。"],
+ "智辯和歌山":["決勝：健大高崎に4-3で勝利","2回に山下の3塁打などで2点を先制。8回に逆転2ランを浴びたが、その裏に川原のスクイズで同点、暴投で勝ち越した。5年ぶり4度目の優勝。"],
  "敦賀気比":["3回戦：智辯和歌山に3-7で敗退","5回に2点を先行し辻琉が7回まで無失点。8回に追いつかれ、延長11回に力尽きた。"],
  "日南学園":["初戦：明徳義塾に2-1でサヨナラ勝ち","9回2死からの3連打でサヨナラ。あと1死で延長という場面を切り抜けた。"],
  "横浜":["準決勝：智辯和歌山に1-7で敗戦","初回に川上の適時打で先制したが、中1日の織田が3回に4失点でマウンドを降りる。打線も5安打に抑えられた。"],
@@ -1215,7 +1265,7 @@ const FORM = {
  "神村学園":["初戦：東筑に5-1で逆転勝利","初戦で鮮やかな逆転劇。打線の勢いは本物。"],
  "佐野日大":["3回戦：健大高崎に1-4で敗退","2回に3点を失い、鈴木は6回9安打4失点。打線も4安打に抑えられ、8強入りはならなかった。"],
  "東海大甲府":["初戦：鶴岡東に5-2で快勝","12安打5得点と打線好調。打ち負けない力あり。"],
- "健大高崎":["準決勝：天理に1-0で勝利","初回に4番・佐藤の適時打で挙げた1点を、その佐藤ら4投手の継投で守り切る。天理を4安打に抑えて初の決勝進出。"],
+ "健大高崎":["決勝：智辯和歌山に3-4で敗戦","8回に石田雄の2ランで逆転したが、その裏に追いつかれ暴投で勝ち越しを許す。2失策が最後に響き、初の夏制覇はならなかった。"],
  "拓大紅陵":["3回戦：仙台育英に3-6で敗退","初回の3失点が重く、6回に加治・阪本の連続適時打で2点差に迫るも届かず。12安打の反撃だった。"],
  "有明":["準々決勝：健大高崎に0-1で敗戦","斉藤が129球を投げて9回1/3を7安打1失点。打線は5安打に抑えられ、延長10回裏に力尽きた。"],
  "長崎日大":["初戦：立正大淞南に15-1で大勝","初戦18安打15得点と打線が大爆発！オッズ急上昇。"],
@@ -1303,7 +1353,7 @@ const DAYS = [
  {d:"8/19", rest:true},
  {d:"8/20", nth:"第14日", bonus:{"畑山":2}, games:[{t:"8:00", r:"準決勝", a:"智辯和歌山", b:"横浜", oa:2.1, ob:1.9, s:[7,1], picks:{"根来":"智辯和歌山","今井":"横浜","畑山":"智辯和歌山"}, bets:{"根来":3,"今井":1,"畑山":2}, hits:["根来","畑山"], tag:"楠本の3ランなどで織田を2回1/3でKO。智辯が決勝へ"},{t:"10:30", r:"準決勝", a:"天理", b:"健大高崎", oa:1.8, ob:2.3, s:[0,1], picks:{"根来":"天理","今井":"健大高崎","畑山":"健大高崎"}, bets:{"根来":1,"今井":3,"畑山":2}, hits:["今井","畑山"], tag:"初回の1点を4投手で守り切り、健大高崎が初の決勝へ"}]},
  {d:"8/21", rest:true},
- {d:"8/22", nth:"第15日", final:true, now:true, novote:["今井"], games:[{t:"10:00", r:"決勝", from:[["8/20",0],["8/20",1]], oa:1.5, ob:2.9, picks:{"根来":"智辯和歌山","畑山":"智辯和歌山"}, tag:"打ち勝つ智辯和歌山か、守り抜く健大高崎か。4試合27得点と、5試合2失点の真っ向勝負。智辯和歌山は2021年以来5年ぶりの夏制覇へ。健大高崎は夏初の頂点に挑む。この一戦で2026年の夏が終わる。"}]}
+ {d:"8/22", nth:"第15日", final:true, now:true, bonus:{"根来":1,"畑山":1,"今井":-1}, games:[{t:"10:00", r:"決勝", from:[["8/20",0],["8/20",1]], oa:1.5, ob:2.9, s:[4,3], picks:{"根来":"智辯和歌山","今井":"健大高崎","畑山":"智辯和歌山"}, hits:["根来","畑山"], tag:"8回に石田雄の逆転2ランを浴びるも、その裏にスクイズで同点、暴投で勝ち越し。智辯和歌山が5年ぶり4度目の優勝。2026年の夏が終わりました。"}]}
 ];
 
 /* ---------- 共通 ---------- */
@@ -1311,7 +1361,12 @@ const r1 = n => Math.round(n*10)/10;
 const byDate = d => DAYS.find(x=>x.d===d);
 /* ポイントベット制：準々決勝・準決勝のみ、持ち点を各試合に配分する */
 const BET_BUDGET = {"準々決勝":8, "準決勝":4};
-const NOVOTE_PT = -15;   /* 締切までに予想を出さなかった場合 */;
+const NOVOTE_PT = -15;   /* 締切までに予想を出さなかった場合 */
+const WRAPUP_TEXT = [
+  "8月8日に首位へ立った根来が、そこから一度も譲らずに逃げ切りました。13連勝は3人の最長、全試合的中は7回、全外しは一度もなし。48試合で37的中の.771は、ひとりだけの7割超えでした。",
+  "今井は準々決勝で横浜に5ptを寄せて+8.5を稼ぎ、11.0pt差まで詰め寄りました。しかし次の準決勝でその横浜が敗れ、勝負どころはそこまででした。畑山は8月6日にいったん首位へ立ち、最高配当の3.0倍も引き当てましたが、序盤の失速が最後まで響きました。",
+  "決勝は智辯和歌山が8回に逆転2ランを浴びながら、その裏に取り返して4-3。5年ぶり4度目の優勝で、2026年の夏が終わりました。"
+];;
 const winnerOf = g => !g ? null : (g.s ? (g.s[0]>g.s[1]?0:1) : (g.w===undefined?null:g.w));
 const winnerName = g => { const w=winnerOf(g); return w===null?null:(w===0?g.a:g.b); };
 
@@ -1427,6 +1482,7 @@ function renderStandings(){
       <div class="pay">${last?`現時点の精算 <b>¥${(gap*RATE).toLocaleString()}</b> → ${totals[0].name}`:"&nbsp;"}</div>
     </div>`;
   }).join("");
+  renderWrapUp();
   renderDeadline();
   renderBetBoard();
   renderPostOrder();
@@ -1714,6 +1770,47 @@ function renderRankTable(){
 }
 
 /* ---------- 精算（点差＋優勝予想の配当） ---------- */
+/* ---------- 全日程終了後の総括（トップに出す） ---------- */
+function renderWrapUp(){
+  const box = document.getElementById("wrapup");
+  if(!box) return;
+  let remain = 0;
+  DAYS.forEach(d=>{ if(d.rest) return;
+    (d.games||[]).forEach(g=>{ if(!g.void && !g.s) remain++; }); });
+  if(remain > 0){ box.innerHTML = ""; return; }
+
+  const champ = championWinner();
+  const t = STATE.totals;
+  const hit = {}, tot = {};
+  PLAYERS.forEach(p=>{ hit[p.name] = 0; tot[p.name] = 0; });
+  DAYS.forEach(d=>(d.games||[]).forEach(g=>{
+    if(!g.s || g.void) return;
+    PLAYERS.forEach(p=>{ tot[p.name]++; if((g.hits||[]).includes(p.name)) hit[p.name]++; });
+  }));
+  const last = t[t.length-1], gap = r1(t[0].pt - last.pt);
+  const pct = n => (hit[n]/tot[n]).toFixed(3).replace(/^0/,"");
+
+  box.innerHTML = `<div class="wu">
+    <div class="wu-cap">第1回大会　全日程終了</div>
+    <div class="wu-main">
+      <em>総合優勝</em>
+      <b style="color:${t[0].color}">${t[0].name}</b>
+      <i>${t[0].pt}<small>pt</small></i>
+    </div>
+    ${champ?`<div class="wu-champ">大会優勝校　<b>${champ}</b></div>`:""}
+    <table class="wu-tb"><tbody>${t.map((p,i)=>`<tr>
+      <th>${ORD[i]}</th>
+      <td class="wu-nm" style="color:${p.color}">${p.name}</td>
+      <td class="wu-pt">${p.pt}</td>
+      <td class="wu-hit">${hit[p.name]}/${tot[p.name]}　${pct(p.name)}</td>
+    </tr>`).join("")}</tbody></table>
+    <div class="wu-pay">精算　${last.name} → ${t[0].name}　<b>¥${(gap*RATE).toLocaleString()}</b>
+      <span>（${gap}pt差 × ${RATE}円）</span></div>
+    <div class="wu-text">${WRAPUP_TEXT.map(s=>`<p>${s}</p>`).join("")}</div>
+    <div class="wu-note">総合優勝者は note 記事を執筆します</div>
+  </div>`;
+}
+
 function championWinner(){
   let team = null;
   DAYS.forEach(d=>(d.games||[]).forEach(g=>{
@@ -1786,7 +1883,6 @@ function renderSettlement(){
 const WEATHER = {
  "8/19":{icon:"🌤",text:"晴のち曇",hi:34,lo:27,pop:40},
  "8/21":{icon:"🌤",text:"晴のち曇",hi:34,lo:26,pop:20,low_conf:true},
- "8/22":{icon:"⛅",text:"曇時々晴",hi:34,lo:27,pop:30,low_conf:true},
 };
 /* ---------- 予想入力（端末内に保存） ---------- */
 /* ナビから飛んだ先が折りたたまれていたら開く */
@@ -2215,7 +2311,8 @@ const VIDEO = {
   "8/15-0":"2021048513", "8/15-1":"2021048514", "8/15-2":"2021048515", "8/15-3":"2021048516",
   "8/16-0":"2021048517", "8/16-1":"2021048518", "8/16-2":"2021048519", "8/16-3":"2021048520",
   "8/18-0":"2021048521", "8/18-1":"2021048522", "8/18-2":"2021048523", "8/18-3":"2021048524",
-  "8/20-0":"2021048525", "8/20-1":"2021048526"
+  "8/20-0":"2021048525", "8/20-1":"2021048526",
+  "8/22-0":"2021048527"
 };
 function videoLink(date, i){
   const id = VIDEO[`${date}-${i}`];
@@ -2291,7 +2388,7 @@ function isClosed(dateStr){
 const KSTAT = {
  "履正社":[[39,11,1]],
  "享栄":[[32,8,2]],
- "智辯和歌山":[[32,7,0],[36,9,0],[40,18,0],[37,14,2]],
+ "智辯和歌山":[[32,7,0],[36,9,0],[40,18,0],[37,14,2],[32,9,1]],
  "社":[[29,5,2]],
  "敦賀気比":[[38,13,1]],
  "横手":[[31,4,3]],
